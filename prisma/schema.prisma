@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Client {
+  id            String    @id @default(uuid())
+  name          String
+  contactPerson String?
+  email         String?
+  phone         String?
+  websiteUrl    String
+  businessType  String    @default("Local Business")
+  city          String    @default("Pune")
+  state         String    @default("Maharashtra")
+  targetKeyword String?   @default("dental clinic pune")
+  status        String    @default("ACTIVE")
+  latestScore   Int?
+  lastAuditDate DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  audits Audit[]
+
+  @@map("clients")
+}
+
+model Audit {
+  id               String    @id @default(uuid())
+  clientId         String
+  client           Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  url              String
+  businessType     String
+  city             String
+  state            String
+  status           String    @default("PENDING") // PENDING, QUEUED, RUNNING, COMPLETED, FAILED
+  currentStep      Int       @default(0)
+  totalSteps       Int       @default(10)
+  progressPercent  Int       @default(0)
+  overallScore     Int?
+  scoreBreakdown   Json? // { technical, on_page, content, core_web_vitals, schema }
+  criticalIssues   Json? // String[]
+  importantIssues  Json? // String[]
+  quickWins        Json? // String[]
+  executiveSummary String?   @db.Text
+  pagespeedData    Json?
+  gscData          Json?
+  rankingsData     Json?
+  crawlerData      Json?
+  pdfPath          String?
+  pdfUrl           String?
+  whatsappStatus   String?   @default("PENDING")
+  logs             Json? // Array of { time, text }
+  errorMessage     String?   @db.Text
+  createdAt        DateTime  @default(now())
+  completedAt      DateTime?
+
+  recommendations Recommendation[]
+
+  @@map("audits")
+}
+
+model Recommendation {
+  id                  String   @id @default(uuid())
+  auditId             String
+  audit               Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  priority            String // CRITICAL, HIGH, MEDIUM, LOW
+  category            String // Technical, OnPage, Content, Schema, CWV
+  finding             String   @db.Text
+  fix                 String   @db.Text
+  estimatedImpact     String // High, Medium, Low
+  effort              String // Hours, Days, Weeks
+  falsifiabilityCheck String   @db.Text
+  createdAt           DateTime @default(now())
+
+  @@map("recommendations")
+}
+
+model QueueJob {
+  id          String    @id @default(uuid())
+  jobId       String?
+  queueName   String    @default("seo-audit-jobs")
+  clientId    String?
+  auditId     String?
+  status      String    @default("QUEUED")
+  progress    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@map("queue_jobs")
+}
