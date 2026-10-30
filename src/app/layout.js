@@ -20,11 +20,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">
-      <head>
-        <link rel="icon" type="image/svg+xml" href={ICON_DATA_URI} />
-        <link rel="shortcut icon" href={ICON_DATA_URI} />
-        <link rel="alternate icon" href="/favicon.ico?v=edgelink3" />
-      </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 antialiased">
         <Navbar />
         <main className="flex-1">

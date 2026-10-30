@@ -15,8 +15,7 @@ import {
   Sparkles,
   Layers,
   ChevronRight,
-  TrendingUp,
-  AlertTriangle
+  TrendingUp
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -218,8 +217,8 @@ export default function AdminDashboardPage() {
                         <Globe className="w-3.5 h-3.5 text-slate-400" />
                         <span className="truncate max-w-xs">{audit.url}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500">
-                        {audit.city || 'Pune'} • {audit.businessType || 'Local Business'} • {new Date(audit.createdAt).toLocaleTimeString()}
+                      <div className="text-[11px] text-slate-500" suppressHydrationWarning>
+                        {audit.city || 'Pune'} • {audit.businessType || 'Local Business'} • {audit.createdAt ? new Date(audit.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}
                       </div>
                     </div>
 
