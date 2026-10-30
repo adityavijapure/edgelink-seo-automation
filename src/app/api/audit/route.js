@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 const { getAudits, createAudit, getClientById } = require('@/lib/store');
 const { runAuditPipeline } = require('@/services/audit-runner');
+const { addAuditJob } = require('@/lib/queue');
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -42,7 +43,13 @@ export async function POST(request) {
       state: sState || 'Maharashtra'
     });
 
-    // Run the pipeline asynchronously in background
+    // Queue job through BullMQ
+    const queueResult = await addAuditJob(audit.id, {
+      url: targetUrl,
+      clientId: audit.clientId
+    });
+
+    // Execute pipeline runner
     runAuditPipeline(audit.id).catch(err => {
       console.error(`Pipeline failed for audit ${audit.id}:`, err);
     });
@@ -50,6 +57,8 @@ export async function POST(request) {
     return NextResponse.json({
       message: 'Audit job queued in BullMQ [seo-audit-jobs]',
       auditId: audit.id,
+      jobId: queueResult.jobId,
+      isBullMQ: queueResult.isBullMQ,
       audit
     }, { status: 202 });
   } catch (err) {
