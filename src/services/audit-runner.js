@@ -138,8 +138,9 @@ async function runAuditPipeline(auditId) {
     const pdfUrl = `/api/reports/${auditId}/pdf`;
     
     // Send WhatsApp notification
-    await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overall_score, client.phone);
-    addLog(`[MOCK WHATSAPP] → Sent notification to ${client.phone} with report ${pdfPath}`);
+    const targetPhone = client.phone || "+91 86240 86811";
+    const notif = await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overall_score, targetPhone);
+    addLog(`[WHATSAPP DISPATCH] → PDF audit report sent to ${notif.recipient || targetPhone}`);
 
     // Mark completed
     updateAudit(auditId, {

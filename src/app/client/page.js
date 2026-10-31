@@ -21,7 +21,8 @@ import {
   Filter,
   CheckSquare,
   Square,
-  ExternalLink
+  ExternalLink,
+  Send
 } from 'lucide-react';
 
 function ClientDashboardContent() {
@@ -147,14 +148,26 @@ function ClientDashboardContent() {
           </div>
 
           {activeAudit && (
-            <Link
-              href={`/api/reports/${activeAudit.id}/pdf`}
-              target="_blank"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all sm:self-end h-9"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Download PDF Report
-            </Link>
+            <div className="flex flex-wrap items-center gap-2 sm:self-end">
+              <a
+                href={`https://api.whatsapp.com/send?phone=918624086811&text=${encodeURIComponent(`🎉 Your SEO Audit Report is ready!\n\nClient: ${client?.name || 'Website'}\n📊 Score: ${activeAudit.overallScore || 0}/100\n📄 Download PDF Report: http://localhost:3000/api/reports/${activeAudit.id}/pdf`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all h-9"
+                title="Send PDF to WhatsApp: 8624086811"
+              >
+                <Send className="w-3.5 h-3.5" />
+                WhatsApp (8624086811)
+              </a>
+              <Link
+                href={`/api/reports/${activeAudit.id}/pdf`}
+                target="_blank"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm transition-all h-9"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Download PDF Report
+              </Link>
+            </div>
           )}
         </div>
       </div>
