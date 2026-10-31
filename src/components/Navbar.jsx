@@ -31,9 +31,9 @@ export default function Navbar() {
               </div>
               <div>
                 <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                  EdgeLink <span className="text-teal-400 text-xs px-1.5 py-0.5 rounded bg-teal-500/20 border border-teal-500/30 font-semibold uppercase">SEO Engine</span>
+                  SEO Pulse <span className="text-teal-400 text-xs px-1.5 py-0.5 rounded bg-teal-500/20 border border-teal-500/30 font-semibold uppercase">Engine</span>
                 </span>
-                <p className="text-[10px] text-slate-400 -mt-1">Full-Stack AI Automation Platform</p>
+                <p className="text-[10px] text-slate-400 -mt-1">Audit & Automation Dashboard</p>
               </div>
             </Link>
 

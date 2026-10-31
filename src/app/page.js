@@ -23,7 +23,7 @@ export default function HomePage() {
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-semibold mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            EdgeLink Technology AI Developer Assessment
+            Full-Stack SEO Automation Platform • Aditya Vijapure
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
             Automated SEO Engine & Dual-Portal Dashboard

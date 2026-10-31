@@ -1,8 +1,10 @@
-# EdgeLink Technology — SEO Automation Dashboard
+# SEO Automation Dashboard
 
 Full-Stack SEO Automation Platform built with **Next.js 14 (App Router)**, **Node.js**, **BullMQ**, and **Claude 3.5 Sonnet API**.
 
-This project provides a complete dual-portal interface featuring an **Internal Admin Portal** and a **Client-Facing Dashboard**, complete with automated headless crawling, Core Web Vitals extraction, Google Search Console metrics, DataForSEO rankings, AI synthesis, PDF report generation, and mock WhatsApp delivery.
+Authored by **Aditya Vijapure**.
+
+This project provides a clean dual-portal architecture featuring an **Internal Operations Portal** and a **Client-Facing Dashboard**, complete with automated headless crawling, Core Web Vitals extraction, Google Search Console metrics, DataForSEO rankings, AI synthesis, PDF report generation, and mock WhatsApp delivery.
 
 ---
 
@@ -87,7 +89,11 @@ This project provides a complete dual-portal interface featuring an **Internal A
 │   │   ├── claude-analyst.js      # Claude API caller + Master prompt
 │   │   └── notification.js        # Twilio notification dispatcher
 │   └── lib/
+│       ├── queue.js               # BullMQ queue wrapper & worker
 │       └── store.js               # Client & audit data store
+├── prisma/
+│   ├── schema.prisma              # PostgreSQL schema
+│   └── seed.js                    # Database seed script
 ├── .env.example
 ├── next.config.js
 ├── tailwind.config.js
@@ -100,18 +106,18 @@ This project provides a complete dual-portal interface featuring an **Internal A
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone <repo-url>
+git clone https://github.com/adityavijapure/edgelink-seo-automation.git
 cd edgelink-seo-automation
 npm install
 ```
 
 ### 2. Configure Environment Variables
-Copy `.env.example` to `.env.local`:
+Copy `.env.example` to `.env`:
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 ```
 
-Settings in `.env.local`:
+Settings in `.env`:
 ```env
 # Toggle for mock mode (true by default for zero-cost testing)
 USE_MOCKS=true
@@ -119,19 +125,39 @@ USE_MOCKS=true
 # Anthropic Claude API (Optional if USE_MOCKS=true)
 ANTHROPIC_API_KEY=
 
-# Supabase / Neon PostgreSQL connection string (Optional in mock mode)
+# Supabase / PostgreSQL database connection (Prisma)
 DATABASE_URL=
+DIRECT_URL=
 
 # Upstash Redis for BullMQ Queue (Optional in mock mode)
 REDIS_URL=
 ```
 
-### 3. Run Development Server
+### 3. Database Sync & Seed
+```bash
+npx prisma db push
+npm run db:seed
+```
+
+### 4. Run Development Server & Worker
+Start the web app:
 ```bash
 npm run dev
 ```
+
+In a separate terminal, start the BullMQ worker:
+```bash
+npm run worker
+```
+
 Open [http://localhost:3000](http://localhost:3000) in your browser:
 - **Admin Portal**: [http://localhost:3000/admin](http://localhost:3000/admin)
 - **Client Dashboard**: [http://localhost:3000/client](http://localhost:3000/client)
 - **Live Pipeline Visualizer**: [http://localhost:3000/admin/audits/new](http://localhost:3000/admin/audits/new)
 - **Queue Operations**: [http://localhost:3000/admin/queue](http://localhost:3000/admin/queue)
+
+---
+
+## 📄 License & Copyright
+
+© 2026 Aditya Vijapure. All rights reserved.

@@ -37,7 +37,7 @@ async function crawlUrl(url) {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; EdgeLinkBot/1.0; +https://edgelinktechnology.com/bot)'
+        'User-Agent': 'Mozilla/5.0 (compatible; SEOAuditBot/1.0; +https://adityavijapure.dev/bot)'
       },
       signal: AbortSignal.timeout(10000)
     });

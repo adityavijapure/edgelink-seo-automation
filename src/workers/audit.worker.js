@@ -9,7 +9,7 @@ const QUEUE_NAME = 'seo-audit-jobs';
 const redisUrl = process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
 
 console.log('====================================================');
-console.log('🚀 EdgeLink Technology — BullMQ Background Worker');
+console.log('🚀 SEO Automation Engine — BullMQ Background Worker');
 console.log('Queue Name:', QUEUE_NAME);
 console.log('Redis Host:', redisUrl ? redisUrl.replace(/:[^:@]+@/, ':****@') : 'Local / Not set (Simulation Mode)');
 console.log('====================================================');
@@ -47,3 +47,4 @@ if (!redisUrl) {
     console.error(`[Worker] ❌ Job ${job?.id} failed:`, err.message);
   });
 }
+

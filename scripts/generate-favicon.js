@@ -122,3 +122,4 @@ fs.writeFileSync(path.join(publicDir, 'favicon.ico'), icoBuffer);
 const base64Svg = Buffer.from(svg).toString('base64');
 console.log('SUCCESS! ICO size:', icoBuffer.length);
 console.log('BASE64_SVG: data:image/svg+xml;base64,' + base64Svg);
+

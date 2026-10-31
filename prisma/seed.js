@@ -7,7 +7,7 @@ const gscMock = require('../src/mocks/gsc.mock');
 const dataforseoMock = require('../src/mocks/dataforseo.mock');
 
 async function main() {
-  console.log('🌱 Seeding database with initial EdgeLink clients & audits...');
+  console.log('🌱 Seeding database with initial clients & audits...');
 
   // 1. Create Dr. Smile Dental Clinic
   const client1 = await prisma.client.upsert({
