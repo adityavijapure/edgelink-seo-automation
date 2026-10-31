@@ -1,9 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  safelist: [
+    {
+      pattern: /(bg|text|border)-(emerald|teal|blue|amber|red|purple|yellow|slate)-(50|100|200|300|400|500|600|700|800|900|950)/,
+    },
+    {
+      pattern: /(ring)-(emerald|teal|blue|amber|red|purple|yellow|slate)-(400|500)/,
+    },
   ],
   darkMode: 'class',
   theme: {
@@ -29,4 +35,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
