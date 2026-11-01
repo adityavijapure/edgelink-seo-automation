@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 const { getAudits, createAudit, getClientById } = require('@/lib/store');
 const { runAuditPipeline } = require('@/services/audit-runner');
 const { addAuditJob } = require('@/lib/queue');
+const { normalizeUrl } = require('@/lib/url-normalizer');
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -34,6 +35,8 @@ export async function POST(request) {
     if (!targetUrl) {
       return NextResponse.json({ error: 'Target URL is required' }, { status: 400 });
     }
+
+    targetUrl = normalizeUrl(targetUrl);
 
     const audit = await createAudit({
       clientId: clientId || 'adhoc-client',

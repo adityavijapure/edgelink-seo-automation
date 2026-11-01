@@ -1,5 +1,6 @@
 // src/lib/store.js
 const { DEFAULT_MOCK_AUDIT } = require('../services/claude-analyst');
+const { normalizeUrl } = require('./url-normalizer');
 const pagespeedMock = require('../mocks/pagespeed.mock');
 const gscMock = require('../mocks/gsc.mock');
 const dataforseoMock = require('../mocks/dataforseo.mock');
@@ -240,7 +241,7 @@ async function createAudit(auditData) {
   const newAudit = {
     id: 'audit-' + Date.now(),
     clientId: auditData.clientId,
-    url: auditData.url,
+    url: normalizeUrl(auditData.url),
     businessType: auditData.businessType,
     city: auditData.city,
     state: auditData.state,

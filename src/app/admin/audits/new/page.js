@@ -124,12 +124,18 @@ function NewAuditContent() {
       setAuditData(null);
       setLogs([{ time: new Date().toLocaleTimeString(), text: 'Submitting job to BullMQ queue...' }]);
 
+      let cleanUrl = url.trim().replace(/,/g, '.');
+      if (cleanUrl && !/^https?:\/\//i.test(cleanUrl)) {
+        cleanUrl = 'https://' + cleanUrl;
+      }
+      setUrl(cleanUrl);
+
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientId: selectedClientId,
-          url,
+          url: cleanUrl,
           businessType,
           city,
           state
@@ -215,13 +221,20 @@ function NewAuditContent() {
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700">Target Website URL *</label>
             <input
-              type="url"
+              type="text"
               required
+              placeholder="e.g. https://www.flipkart.com or flipkart.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              onBlur={(e) => {
+                let v = e.target.value.trim().replace(/,/g, '.');
+                if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v;
+                setUrl(v);
+              }}
               disabled={isRunning}
               className="mt-1 w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:border-teal-500 font-mono"
             />
+            <p className="text-[10px] text-slate-400 mt-1">Accepts any format (e.g. flipkart.com, https://flipkart.com)</p>
           </div>
 
           <div className="flex items-end">
