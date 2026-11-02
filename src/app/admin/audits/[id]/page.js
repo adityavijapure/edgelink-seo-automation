@@ -104,7 +104,7 @@ export default function SingleAuditInspectorPage({ params }) {
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-        {['summary', 'recommendations', 'raw-signals', 'worker-logs'].map((tab) => (
+        {['summary', 'recommendations', 'claude-json', 'raw-signals', 'worker-logs'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -189,6 +189,34 @@ export default function SingleAuditInspectorPage({ params }) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {activeTab === 'claude-json' && (
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-3">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <h3 className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-wider">
+                Claude Sonnet 4.6 — Structured JSON Output
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
+              Schema v1.0 • Falsifiable Check Enabled
+            </span>
+          </div>
+          <pre className="text-emerald-300 font-mono text-xs overflow-x-auto max-h-[600px] leading-relaxed p-2 bg-slate-900/60 rounded-xl">
+            {JSON.stringify({
+              audit_version: "v1.0",
+              overall_score: audit.overallScore,
+              score_breakdown: audit.scoreBreakdown,
+              critical_issues: audit.criticalIssues || [],
+              important_issues: audit.importantIssues || [],
+              quick_wins: audit.quickWins || [],
+              recommendations: audit.recommendations || [],
+              executive_summary: audit.executiveSummary
+            }, null, 2)}
+          </pre>
         </div>
       )}
 

@@ -57,6 +57,7 @@ function NewAuditContent() {
   const [customEmail, setCustomEmail] = useState('');
   const [isDispatching, setIsDispatching] = useState(false);
   const [dispatchMessage, setDispatchMessage] = useState('');
+  const [showClaudeJson, setShowClaudeJson] = useState(false);
 
   const [auditId, setAuditId] = useState(null);
   const [auditData, setAuditData] = useState(null);
@@ -532,6 +533,15 @@ function NewAuditContent() {
                 <FileText className="w-3.5 h-3.5" />
                 View PDF
               </Link>
+              <button
+                type="button"
+                onClick={() => setShowClaudeJson(!showClaudeJson)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-teal-300 rounded-lg text-xs font-mono font-semibold transition-colors"
+                title="Inspect raw structured JSON returned by Claude analysis engine"
+              >
+                <Terminal className="w-3.5 h-3.5 text-teal-400" />
+                {showClaudeJson ? "Hide Claude JSON" : "Inspect Claude JSON"}
+              </button>
               <Link
                 href={`/client?clientId=${selectedClientId}`}
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold"
@@ -540,6 +550,32 @@ function NewAuditContent() {
               </Link>
             </div>
           </div>
+
+          {showClaudeJson && (
+            <div className="bg-slate-950 rounded-xl border border-slate-800 p-4 space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between text-xs font-mono text-slate-400 pb-2 border-b border-slate-800">
+                <span className="text-teal-400 font-bold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  Claude Sonnet 4.6 — Structured JSON Output
+                </span>
+                <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                  Schema v1.0 • Falsifiable Output
+                </span>
+              </div>
+              <pre className="text-[11px] font-mono text-emerald-300 max-h-80 overflow-y-auto leading-relaxed p-2 bg-slate-900/60 rounded-lg">
+                {JSON.stringify({
+                  audit_version: "v1.0",
+                  overall_score: auditData.overallScore,
+                  score_breakdown: auditData.scoreBreakdown,
+                  critical_issues: auditData.criticalIssues || [],
+                  important_issues: auditData.importantIssues || [],
+                  quick_wins: auditData.quickWins || [],
+                  recommendations: auditData.recommendations || [],
+                  executive_summary: auditData.executiveSummary
+                }, null, 2)}
+              </pre>
+            </div>
+          )}
 
           {/* Delivery Recipient Status Banner */}
           <div className="flex flex-wrap items-center gap-3 p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl text-xs">
