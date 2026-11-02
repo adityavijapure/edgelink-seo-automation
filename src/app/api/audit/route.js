@@ -1,6 +1,6 @@
 // src/app/api/audit/route.js
 import { NextResponse } from 'next/server';
-const { getAudits, createAudit, getClientById } = require('@/lib/store');
+const { getAudits, createAudit, getAuditById, getClientById } = require('@/lib/store');
 const { runAuditPipeline } = require('@/services/audit-runner');
 const { addAuditJob } = require('@/lib/queue');
 const { normalizeUrl } = require('@/lib/url-normalizer');
