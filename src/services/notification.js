@@ -78,7 +78,8 @@ async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone, clie
 
   const hasTwilioCreds = Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
 
-  if (hasTwilioCreds) {
+  // If USE_MOCKS is false and credentials are provided, attempt real Twilio dispatch
+  if (!USE_MOCKS && hasTwilioCreds) {
     try {
       console.log(`[Twilio WhatsApp] Sending live PDF alert to ${recipient}...`);
       const result = await sendRealTwilioWhatsApp(recipient, message, fullPdfUrl);
