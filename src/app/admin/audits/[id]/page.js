@@ -173,7 +173,7 @@ export default function SingleAuditInspectorPage({ params }) {
 
       {activeTab === 'recommendations' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h3 className="text-sm font-bold text-slate-900">Claude AI Actionable Recommendations</h3>
+          <h3 className="text-sm font-bold text-slate-900">Prioritized Actionable Recommendations</h3>
           <div className="space-y-3">
             {(audit.recommendations || []).map((rec, i) => (
               <div key={i} className="p-4 rounded-xl border border-slate-200 space-y-2">

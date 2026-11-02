@@ -4,8 +4,8 @@ import Navbar from '@/components/Navbar';
 const ICON_DATA_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ij4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZUdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMDZiNmQ0IiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzBkOTQ4OCIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTBiOTgxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9InVybCgjZWRnZUdyYWQpIiAvPgogIDxwYXRoIGQ9Ik0xNiAxNmgzMmMxLjY2IDAgMyAxLjM0IDMgM3YyYzAgMS42Ni0xLjM0IDMtMyAzSDI2djhoMThjMS42NiAwIDMgMS4zNCAzIDN2MmMwIDEuNjYtMS4zNCAzLTMgM0gyNnY4aDIyYzEuNjYgMCAzIDEuMzQgMyAzdjJjMCAxLjY2LTEuMzQgMy0zIDNIMTZjLTEuNjYgMC0zLTEuMzQtMy0zVjE5YzAtMS42NiAxLjM0LTMgMy0zeiIgZmlsbD0iI2ZmZmZmZiIgLz4KICA8Y2lyY2xlIGN4PSI0OSIgY3k9IjE1IiByPSI1IiBmaWxsPSIjMzhiZGY4IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgLz4KPC9zdmc+";
 
 export const metadata = {
-  title: 'SEO Automation Dashboard | Dual-Portal Engine',
-  description: 'Full-Stack SEO Automation Dashboard with Headless Crawling, BullMQ Worker Pipeline, and Claude AI Analysis',
+  title: 'SEO Pulse | Audit & Search Intelligence Platform',
+  description: 'Automated technical SEO auditing, Core Web Vitals monitoring, and client reporting platform.',
   icons: {
     icon: [
       { url: ICON_DATA_URI, type: 'image/svg+xml' },
@@ -34,9 +34,9 @@ export default function RootLayout({ children }) {
                 BullMQ + Node.js Worker
               </span>
               <span>•</span>
-              <span className="text-slate-600">Claude Sonnet 4.6</span>
+              <span className="text-slate-600">PostgreSQL</span>
               <span>•</span>
-              <span className="text-slate-600">Supabase Postgres</span>
+              <span className="text-slate-600">Upstash Redis</span>
             </div>
           </div>
         </footer>
