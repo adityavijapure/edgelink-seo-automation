@@ -20,7 +20,8 @@ import {
   Send,
   Mail,
   Phone,
-  Share2
+  Share2,
+  Layers
 } from 'lucide-react';
 
 const PIPELINE_STEPS = [

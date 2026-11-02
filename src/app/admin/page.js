@@ -15,7 +15,8 @@ import {
   Sparkles,
   Layers,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
