@@ -31,9 +31,9 @@ const PIPELINE_STEPS = [
   { step: 5, title: 'On-Page SEO Analysis', desc: 'Heading structure, word count & missing image alt tags' },
   { step: 6, title: 'Robots.txt & Sitemap', desc: 'Crawl directives, coverage & XML sitemap discovery' },
   { step: 7, title: 'DataForSEO SERP Rankings', desc: 'Keyword rank positions vs local competitors' },
-  { step: 8, title: 'Technical SEO Synthesis', desc: 'Heuristic synthesis & prioritized action plan' },
+  { step: 8, title: 'Claude Sonnet 4.6 Analysis', desc: 'Deep synthesis & structured JSON recommendations' },
   { step: 9, title: 'Database Persistence', desc: 'Saving audit records & scores to Supabase/Neon' },
-  { step: 10, title: 'Report Generation & Delivery', desc: 'Executive PDF compilation and automated dispatch' }
+  { step: 10, title: 'PDF & WhatsApp Dispatch', desc: 'Report generation & Twilio mock notification' }
 ];
 
 function NewAuditContent() {
@@ -249,7 +249,7 @@ function NewAuditContent() {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Execute the 10-stage automated audit pipeline with headless Cheerio crawler, Core Web Vitals diagnostics, and prioritized technical analysis.
+            Execute the 10-stage automated audit pipeline with headless Cheerio crawler, mock APIs, and Claude AI synthesis.
           </p>
         </div>
 
@@ -403,7 +403,7 @@ function NewAuditContent() {
       <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center justify-between pb-4 border-b border-slate-200">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <Layers className="w-4 h-4 text-teal-600" />
+            <Sparkles className="w-4 h-4 text-teal-600" />
             10-Stage Audit Pipeline Execution
           </h2>
           {auditData && (
@@ -500,7 +500,7 @@ function NewAuditContent() {
                 <h3 className="text-lg font-bold text-slate-900">Audit Completed Successfully!</h3>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                Technical audit complete • All signals persisted to database • PDF Generated
+                Claude 3.5 Sonnet analysis complete • All signals persisted to database • PDF Generated
               </p>
             </div>
 
@@ -661,7 +661,7 @@ function NewAuditContent() {
 
           {/* Executive Summary */}
           <div className="bg-emerald-50/60 border-l-4 border-emerald-500 p-4 rounded-r-xl">
-            <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">Executive Summary</h4>
+            <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">Claude Executive Summary</h4>
             <p className="text-xs text-emerald-950 mt-1 leading-relaxed">
               {auditData.executiveSummary}
             </p>

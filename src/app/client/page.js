@@ -261,12 +261,12 @@ function ClientDashboardContent() {
             </div>
           </div>
 
-          {/* Executive Summary */}
+          {/* AI Executive Summary */}
           <div className="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-700" />
+              <Sparkles className="w-4 h-4 text-emerald-700" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-900">
-                Executive Assessment & Strategic Insights
+                Claude 3.5 Sonnet Executive Assessment
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-emerald-950 leading-relaxed font-normal">
@@ -480,13 +480,13 @@ function ClientDashboardContent() {
         </div>
       </div>
 
-      {/* Prioritized Recommendations Section */}
+      {/* Prioritized AI Recommendations Section */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6" id="recommendations">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-teal-600" />
-              Prioritized Action Plan & Verification Standards
+              <Sparkles className="w-4 h-4 text-teal-600" />
+              Prioritized SEO Recommendations & Falsifiability Checks
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
               Ranked by impact on local rankings and patient acquisition. Each recommendation includes verification criteria.

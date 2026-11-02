@@ -109,15 +109,15 @@ export default function AdminQueuePage() {
 
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-start justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Execution Pipeline</span>
-            <div className="text-lg font-mono font-bold text-teal-700 mt-1">
-              Async Headless
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mock Toggle Flag</span>
+            <div className="text-lg font-mono font-bold text-emerald-600 mt-1">
+              USE_MOCKS=true
             </div>
             <div className="text-[11px] text-slate-500 mt-2">
-              Rate-limited multi-stage crawler active
+              Isolated mock crawling sandbox active
             </div>
           </div>
-          <div className="p-3 bg-teal-50 rounded-xl text-teal-600">
+          <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600">
             <ShieldCheck className="w-5 h-5" />
           </div>
         </div>

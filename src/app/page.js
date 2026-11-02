@@ -1,292 +1,186 @@
 import Link from 'next/link';
 import { 
-  Globe, 
-  ArrowRight, 
-  CheckCircle2, 
-  FileText, 
-  Activity, 
+  ShieldCheck, 
   BarChart3, 
   Zap, 
-  Layers, 
-  Clock, 
-  TrendingUp, 
-  ShieldCheck, 
-  Search,
-  ExternalLink
+  Cpu, 
+  Database, 
+  CheckCircle2, 
+  ArrowRight, 
+  Search, 
+  FileText, 
+  Smartphone,
+  Layers,
+  Sparkles
 } from 'lucide-react';
-const { getClients, getAudits } = require('@/lib/store');
 
-export const dynamic = 'force-dynamic';
-
-export default async function HomePage() {
-  const clients = await getClients();
-  const audits = await getAudits();
-
-  const completedAudits = audits.filter(a => a.status === 'COMPLETED');
-  const avgScore = completedAudits.length > 0 
-    ? Math.round(completedAudits.reduce((acc, a) => acc + (a.overallScore || 0), 0) / completedAudits.length)
-    : 72;
-
-  const recentAudits = audits.slice(0, 5);
-
+export default function HomePage() {
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
-      {/* Top Banner / Welcome Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Operational Workspace
+    <div className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Hero Banner */}
+      <div className="relative rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-teal-950 p-8 sm:p-12 text-white shadow-xl overflow-hidden border border-slate-800">
+        <div className="absolute right-0 top-0 -mt-12 -mr-12 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative z-10 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-semibold mb-4">
+            <Sparkles className="w-3.5 h-3.5" />
+            Full-Stack SEO Automation Platform • Aditya Vijapure
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            SEO Audit & Search Intelligence Platform
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
+            Automated SEO Engine & Dual-Portal Dashboard
           </h1>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Automated technical crawling, Core Web Vitals diagnostics, search performance tracking, and executive client reporting for multi-location businesses.
+          <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
+            Full-stack system executing headless crawling, PageSpeed, GSC, DataForSEO, Claude 3.5 Sonnet analysis, automated PDF report generation, and WhatsApp notifications via BullMQ.
           </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/admin/audits/new"
-            className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all hover:shadow"
-          >
-            <Zap className="w-4 h-4 fill-current" />
-            <span>Run New Audit</span>
-          </Link>
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all"
-          >
-            <ShieldCheck className="w-4 h-4 text-teal-400" />
-            <span>Admin Console</span>
-          </Link>
-          <Link
-            href="/client"
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all border border-slate-200"
-          >
-            <BarChart3 className="w-4 h-4 text-slate-600" />
-            <span>Client View</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* KPI Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Monitored Sites</span>
-            <Globe className="w-4 h-4 text-teal-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2">{clients.length}</div>
-          <p className="text-[11px] text-slate-500 mt-1">Pune clinics & developers</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Total Audits Run</span>
-            <Activity className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2">{audits.length}</div>
-          <p className="text-[11px] text-emerald-600 font-medium mt-1">{completedAudits.length} completed</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Avg. Health Score</span>
-            <TrendingUp className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2">{avgScore}<span className="text-sm text-slate-500 font-normal">/100</span></div>
-          <p className="text-[11px] text-slate-500 mt-1">Across all crawl audits</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Worker Status</span>
-            <Layers className="w-4 h-4 text-purple-600" />
-          </div>
-          <div className="text-base font-bold text-slate-900 mt-2 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Queue Active
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1 font-mono">seo-audit-jobs</p>
-        </div>
-      </div>
-
-      {/* Main Workspace Split: Quick Launch + Recent Audits Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Two Workspace Action Cards */}
-        <div className="space-y-6">
-          {/* Operations Card */}
-          <div className="bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between h-[230px]">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700 font-bold">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">Operations Console</h3>
-                  <p className="text-[11px] text-slate-500">Internal management & queue runner</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 mt-3 leading-relaxed">
-                Configure target URLs, manage client keywords, trigger 10-stage headless crawls, and monitor worker telemetry.
-              </p>
-            </div>
+          <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/admin"
-              className="inline-flex items-center justify-between px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold px-6 py-3 rounded-xl shadow-lg transition-all hover:scale-[1.02]"
             >
-              <span>Open Operations Console</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-5 h-5 text-slate-950" />
+              Open Admin Portal
+              <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
-          </div>
-
-          {/* Client Portal Card */}
-          <div className="bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between h-[230px]">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 font-bold">
-                  <BarChart3 className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">Client Reports View</h3>
-                  <p className="text-[11px] text-slate-500">Stakeholder presentation dashboard</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 mt-3 leading-relaxed">
-                Interactive score breakdowns, Core Web Vitals metrics, GSC keyword positions, and prioritized action checklists.
-              </p>
-            </div>
             <Link
               href="/client"
-              className="inline-flex items-center justify-between px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold px-6 py-3 rounded-xl transition-all hover:scale-[1.02]"
             >
-              <span>Open Client Dashboard</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <BarChart3 className="w-5 h-5 text-blue-400" />
+              Open Client Dashboard
             </Link>
-          </div>
-        </div>
-
-        {/* Right Column (2 cols wide): Recent Audits Table */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Recent Audit Reports</h3>
-                <p className="text-[11px] text-slate-500">Live crawl results and generated executive reports</p>
-              </div>
-              <Link
-                href="/admin/audits/new"
-                className="text-xs font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-1"
-              >
-                <span>New Audit</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            <div className="overflow-x-auto mt-4">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-100 text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
-                    <th className="pb-3 font-semibold">Target Website</th>
-                    <th className="pb-3 font-semibold">Client</th>
-                    <th className="pb-3 font-semibold text-center">Score</th>
-                    <th className="pb-3 font-semibold text-center">Status</th>
-                    <th className="pb-3 font-semibold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {recentAudits.map((audit) => {
-                    const client = clients.find(c => c.id === audit.clientId) || { name: 'Client' };
-                    const score = audit.overallScore || 70;
-                    return (
-                      <tr key={audit.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3 font-medium text-slate-900 flex items-center gap-1.5">
-                          <Globe className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                          <span className="truncate max-w-[180px] font-mono text-[11px]">{audit.url}</span>
-                        </td>
-                        <td className="py-3 text-slate-600 text-[11px]">{client.name}</td>
-                        <td className="py-3 text-center">
-                          <span className={`inline-flex items-center justify-center font-bold px-2 py-0.5 rounded text-[11px] ${
-                            score >= 80 ? 'bg-emerald-100 text-emerald-800' :
-                            score >= 65 ? 'bg-teal-100 text-teal-800' :
-                            'bg-amber-100 text-amber-800'
-                          }`}>
-                            {score}/100
-                          </span>
-                        </td>
-                        <td className="py-3 text-center">
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Completed
-                          </span>
-                        </td>
-                        <td className="py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Link
-                              href={`/api/reports/${audit.id}/pdf`}
-                              target="_blank"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
-                            >
-                              <FileText className="w-3 h-3" />
-                              PDF
-                            </Link>
-                            <Link
-                              href={`/client?clientId=${audit.clientId}`}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-teal-700 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 rounded-md transition-colors"
-                            >
-                              <span>View</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-            <span>Showing recent audit records from PostgreSQL database</span>
-            <Link href="/admin" className="text-teal-700 hover:underline font-semibold">
-              View all audits in Operations Console &rarr;
+            <Link
+              href="/admin/audits/new"
+              className="inline-flex items-center gap-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold px-5 py-3 rounded-xl transition-all"
+            >
+              <Zap className="w-4 h-4 text-emerald-400" />
+              Live Audit Pipeline
             </Link>
           </div>
         </div>
       </div>
 
-      {/* 10-Point Technical Pipeline Flow */}
-      <div className="bg-white rounded-xl border border-slate-200/80 p-6 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">10-Stage Audit Pipeline Architecture</h3>
-            <p className="text-[11px] text-slate-500">Executed sequentially by background workers on each audit trigger</p>
+      {/* Two Portal Cards */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Admin Portal Card */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Internal Admin Portal</h2>
+                <p className="text-xs text-slate-500">Agency & Operator Control Plane</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold px-2.5 py-1 bg-teal-100 text-teal-800 rounded-full">
+              Full Access
+            </span>
           </div>
-          <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded border border-slate-200">
-            Queue: seo-audit-jobs
-          </span>
+          <p className="mt-4 text-xs text-slate-600 leading-relaxed">
+            Manage multi-location clients, trigger manual and scheduled SEO audit jobs, monitor the live BullMQ worker pipeline with step-by-step telemetry, inspect raw crawler signals, and view system health.
+          </p>
+          <ul className="mt-4 space-y-2 text-xs text-slate-600">
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
+              <span>Multi-client directory with target keywords & history</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
+              <span>Interactive 10-step audit pipeline visualizer & real-time logs</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
+              <span>BullMQ queue monitor, Upstash Redis status, and mock toggle</span>
+            </li>
+          </ul>
+          <div className="mt-6 pt-4 border-t border-slate-100">
+            <Link
+              href="/admin"
+              className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs py-2.5 rounded-lg transition-colors"
+            >
+              Enter Admin Portal
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {/* Client Portal Card */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Client-Facing Dashboard</h2>
+                <p className="text-xs text-slate-500">Executive SEO Performance & Insights</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">
+              Client Ready
+            </span>
+          </div>
+          <p className="mt-4 text-xs text-slate-600 leading-relaxed">
+            Clean, high-impact view designed for business owners (dental clinics, healthcare, real estate) to understand their SEO health, Core Web Vitals, organic search metrics, and AI recommendations.
+          </p>
+          <ul className="mt-4 space-y-2 text-xs text-slate-600">
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <span>Overall SEO Score gauge & 5-factor breakdown (0-100)</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <span>Prioritized Claude AI recommendations with falsifiability checks</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <span>Core Web Vitals card, GSC query table, and PDF download</span>
+            </li>
+          </ul>
+          <div className="mt-6 pt-4 border-t border-slate-100">
+            <Link
+              href="/client"
+              className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs py-2.5 rounded-lg transition-colors"
+            >
+              Enter Client Dashboard
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Technical Pipeline Architecture Overview */}
+      <div className="mt-12 bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Standard Audit Job Pipeline</h3>
+            <p className="text-xs text-slate-500">Implemented strictly as specified in Section 3.2 of the assessment</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md font-mono">
+              BullMQ Queue: seo-audit-jobs
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           {[
-            { step: '01', title: 'DOM Crawler', desc: 'Cheerio headless HTML extraction' },
-            { step: '02', title: 'PageSpeed / CWV', desc: 'LCP, CLS, INP mobile metrics' },
-            { step: '03', title: 'Search Console', desc: 'Organic queries, clicks & CTR' },
-            { step: '04', title: 'Schema Validator', desc: 'LocalBusiness & Dentist JSON-LD' },
-            { step: '05', title: 'On-Page SEO', desc: 'Heading hierarchy & alt attributes' },
-            { step: '06', title: 'Robots & Sitemap', desc: 'Crawl directives & indexability' },
-            { step: '07', title: 'SERP Rankings', desc: 'DataForSEO local competitors' },
-            { step: '08', title: 'Synthesis Engine', desc: 'Falsifiable recommendations' },
-            { step: '09', title: 'Data Persistence', desc: 'Supabase PostgreSQL storage' },
-            { step: '10', title: 'Report Delivery', desc: 'Executive PDF & dispatch alerts' },
+            { step: '01', title: 'Cheerio Crawl', tag: 'Headless DOM' },
+            { step: '02', title: 'PageSpeed API', tag: 'Core Web Vitals' },
+            { step: '03', title: 'Google Console', tag: 'GSC Clicks/CTR' },
+            { step: '04', title: 'Schema Validator', tag: 'LocalBusiness' },
+            { step: '05', title: 'On-Page SEO', tag: 'Headings & Alts' },
+            { step: '06', title: 'Robots & Sitemap', tag: 'Indexability' },
+            { step: '07', title: 'DataForSEO', tag: 'SERP & Volume' },
+            { step: '08', title: 'Claude Sonnet', tag: 'AI Analysis' },
+            { step: '09', title: 'PostgreSQL Save', tag: 'Data Layer' },
+            { step: '10', title: 'PDF & WhatsApp', tag: 'Twilio Console' },
           ].map((item, idx) => (
-            <div key={idx} className="p-3 bg-slate-50/80 rounded-lg border border-slate-200/70">
-              <span className="text-[10px] font-mono font-bold text-teal-700">STAGE {item.step}</span>
-              <div className="text-xs font-bold text-slate-800 mt-1">{item.title}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 leading-snug">{item.desc}</div>
+            <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-200/80">
+              <span className="text-[10px] font-mono text-teal-600 font-bold">STEP {item.step}</span>
+              <div className="text-xs font-semibold text-slate-800 mt-1">{item.title}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">{item.tag}</div>
             </div>
           ))}
         </div>
