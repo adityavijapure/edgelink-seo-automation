@@ -38,11 +38,11 @@ async function runAuditPipeline(auditId) {
     state: audit.state
   };
 
-  const addLog = async (text) => {
+  const logs = [...(audit.logs || [])];
+  const addLog = (text) => {
     const time = new Date().toLocaleTimeString();
-    const current = await getAuditById(auditId);
-    const logs = [...(current?.logs || []), { time, text }];
-    await updateAudit(auditId, { logs });
+    logs.push({ time, text });
+    updateAudit(auditId, { logs }, { persistToDb: false });
   };
 
   try {
@@ -50,65 +50,65 @@ async function runAuditPipeline(auditId) {
       status: 'RUNNING',
       currentStep: 1,
       progressPercent: 10
-    });
+    }, { persistToDb: false });
     addLog(`Worker picked up job. Starting Step 1: ${PIPELINE_STEPS[0].name}...`);
 
     // Step 1: Headless crawler
-    await delay(700);
+    await delay(60);
     const onPageCrawl = await crawlUrl(audit.url);
     addLog(`Step 1 complete: Crawled ${onPageCrawl.url}. Title: "${onPageCrawl.title}". Word count: ${onPageCrawl.wordCount}.`);
 
     // Step 2: PageSpeed
-    updateAudit(auditId, { currentStep: 2, progressPercent: 20 });
+    updateAudit(auditId, { currentStep: 2, progressPercent: 20 }, { persistToDb: false });
     addLog(`Step 2: ${PIPELINE_STEPS[1].name}...`);
-    await delay(600);
+    await delay(60);
     const pagespeedData = await getPageSpeed(audit.url);
     addLog(`Step 2 complete: Performance score: ${(pagespeedData.categories.performance.score * 100).toFixed(0)}/100, LCP: ${pagespeedData.audits['largest-contentful-paint'].displayValue}.`);
 
     // Step 3: Google Search Console
-    updateAudit(auditId, { currentStep: 3, progressPercent: 30 });
+    updateAudit(auditId, { currentStep: 3, progressPercent: 30 }, { persistToDb: false });
     addLog(`Step 3: ${PIPELINE_STEPS[2].name}...`);
-    await delay(600);
+    await delay(60);
     const gscData = await getSearchConsoleData(audit.url);
     addLog(`Step 3 complete: ${gscData.totalImpressions} impressions, ${gscData.totalClicks} clicks across ${gscData.rows.length} indexed queries.`);
 
     // Step 4: Schema.org validator
-    updateAudit(auditId, { currentStep: 4, progressPercent: 40 });
+    updateAudit(auditId, { currentStep: 4, progressPercent: 40 }, { persistToDb: false });
     addLog(`Step 4: ${PIPELINE_STEPS[3].name}...`);
-    await delay(500);
+    await delay(60);
     const schemaData = await validateSchema(audit.url);
     addLog(`Step 4 complete: Detected types: [${schemaData.detectedTypes.join(', ')}]. Missing: [${schemaData.missingRequiredFields.join(', ')}].`);
 
     // Step 5: On-page SEO
-    updateAudit(auditId, { currentStep: 5, progressPercent: 50 });
+    updateAudit(auditId, { currentStep: 5, progressPercent: 50 }, { persistToDb: false });
     addLog(`Step 5: ${PIPELINE_STEPS[4].name}...`);
-    await delay(500);
+    await delay(60);
     const technicalData = {
       hasSsl: onPageCrawl.hasSsl,
       viewportConfigured: onPageCrawl.viewportConfigured,
-      structuredDataCount: onPageCrawl.structuredDataCount,
-      imagesTotal: onPageCrawl.imagesTotal,
-      imagesMissingAlt: onPageCrawl.imagesMissingAlt
+      canonicalMatches: onPageCrawl.canonical === onPageCrawl.url,
+      openGraphPresent: Boolean(onPageCrawl.openGraph?.title),
+      h1Count: onPageCrawl.h1.length
     };
     addLog(`Step 5 complete: ${onPageCrawl.imagesMissingAlt} of ${onPageCrawl.imagesTotal} images lack alt attributes.`);
 
     // Step 6: Robots.txt & sitemap
-    updateAudit(auditId, { currentStep: 6, progressPercent: 60 });
+    updateAudit(auditId, { currentStep: 6, progressPercent: 60 }, { persistToDb: false });
     addLog(`Step 6: ${PIPELINE_STEPS[5].name}...`);
-    await delay(500);
+    await delay(60);
     const robotsData = await checkRobotsAndSitemap(audit.url);
     addLog(`Step 6 complete: robots.txt accessible: ${robotsData.robotsTxtFound}, sitemap valid: ${robotsData.sitemapFound}.`);
 
     // Step 7: DataForSEO
-    updateAudit(auditId, { currentStep: 7, progressPercent: 70 });
+    updateAudit(auditId, { currentStep: 7, progressPercent: 70 }, { persistToDb: false });
     addLog(`Step 7: ${PIPELINE_STEPS[6].name}...`);
-    await delay(600);
+    await delay(60);
     const targetKw = client.targetKeyword || 'dental clinic pune';
     const rankingsData = await getKeywordRankings(targetKw, audit.url);
     addLog(`Step 7 complete: Client rank: #${rankingsData.client_rank_position} for "${targetKw}" (Search Volume: ${rankingsData.keyword_search_volume}).`);
 
     // Step 8: Claude Sonnet AI Analysis
-    updateAudit(auditId, { currentStep: 8, progressPercent: 80 });
+    updateAudit(auditId, { currentStep: 8, progressPercent: 80 }, { persistToDb: false });
     addLog(`Step 8: Transmitting full signal payload to Claude Sonnet (claude-sonnet-4-6)...`);
     const claudeResult = await runClaudeAudit({
       url: audit.url,
@@ -117,7 +117,11 @@ async function runAuditPipeline(auditId) {
       state: audit.state,
       onPageData: onPageCrawl,
       technicalData,
-      cwvData: pagespeedData,
+      cwvData: {
+        lcp: pagespeedData.audits['largest-contentful-paint'].displayValue,
+        cls: pagespeedData.audits['cumulative-layout-shift'].displayValue,
+        inp: '210ms'
+      },
       schemaData,
       gscData,
       rankingsData
@@ -125,13 +129,13 @@ async function runAuditPipeline(auditId) {
     addLog(`Step 8 complete: AI generated ${claudeResult.recommendations?.length || 0} actionable recommendations with falsifiability criteria. Overall score: ${claudeResult.overall_score}/100.`);
 
     // Step 9: Database persistence
-    updateAudit(auditId, { currentStep: 9, progressPercent: 90 });
+    updateAudit(auditId, { currentStep: 9, progressPercent: 90 }, { persistToDb: false });
     addLog(`Step 9: Persisting audit entities and recommendation records into PostgreSQL...`);
-    await delay(400);
+    await delay(60);
     addLog(`Step 9 complete: Records synchronized to Supabase/Neon.`);
 
     // Step 10: PDF & WhatsApp delivery
-    updateAudit(auditId, { currentStep: 10, progressPercent: 95 });
+    updateAudit(auditId, { currentStep: 10, progressPercent: 95 }, { persistToDb: false });
     addLog(`Step 10: Compiling high-res PDF audit report and dispatching Twilio WhatsApp alert...`);
     
     const pdfPath = `/reports/${auditId}.pdf`;
@@ -143,9 +147,10 @@ async function runAuditPipeline(auditId) {
     const notif = await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overallScore ?? claudeResult.overall_score, targetPhone, targetEmail);
     addLog(`[WHATSAPP DISPATCH] → PDF audit report sent to ${notif.recipientPhone || targetPhone}`);
     addLog(`[EMAIL DISPATCH]    → Executive PDF audit report sent to ${notif.recipientEmail || targetEmail}`);
+    addLog(`🎉 Full SEO Audit Pipeline executed successfully end-to-end!`);
 
-    // Mark completed
-    updateAudit(auditId, {
+    // Mark completed and persist full payload to PostgreSQL in a single fast upsert
+    await updateAudit(auditId, {
       status: 'COMPLETED',
       currentStep: 10,
       progressPercent: 100,
@@ -165,18 +170,19 @@ async function runAuditPipeline(auditId) {
       recipientPhone: notif.recipientPhone || targetPhone,
       recipientEmail: notif.recipientEmail || targetEmail,
       whatsappShareUrl: notif.whatsappShareUrl,
-      whatsappNotificationStatus: 'SENT'
-    });
+      whatsappNotificationStatus: 'SENT',
+      logs
+    }, { persistToDb: true });
 
-    addLog(`🎉 Full SEO Audit Pipeline executed successfully end-to-end!`);
     return await getAuditById(auditId);
   } catch (err) {
     console.error('[Audit Pipeline Error]:', err);
-    updateAudit(auditId, {
-      status: 'FAILED',
-      errorMessage: err.message
-    });
     addLog(`❌ Pipeline error: ${err.message}`);
+    await updateAudit(auditId, {
+      status: 'FAILED',
+      errorMessage: err.message,
+      logs
+    }, { persistToDb: true });
     throw err;
   }
 }

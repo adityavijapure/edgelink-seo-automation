@@ -5,7 +5,7 @@ const { normalizeUrl } = require('../lib/url-normalizer');
 async function checkRobotsAndSitemap(rawUrl) {
   const url = normalizeUrl(rawUrl || 'https://example-dental-clinic.com');
 
-  if (USE_MOCKS && (!url || url.includes('example-dental-clinic.com'))) {
+  if (USE_MOCKS) {
     return {
       robotsTxtFound: true,
       robotsTxtAccessible: true,
@@ -24,9 +24,9 @@ async function checkRobotsAndSitemap(rawUrl) {
 
   try {
     const origin = new URL(url).origin;
-    const robotsRes = await fetch(`${origin}/robots.txt`, { signal: AbortSignal.timeout(5000) });
+    const robotsRes = await fetch(`${origin}/robots.txt`, { signal: AbortSignal.timeout(2500) });
     const robotsTxtFound = robotsRes.ok;
-    const sitemapRes = await fetch(`${origin}/sitemap.xml`, { signal: AbortSignal.timeout(5000) });
+    const sitemapRes = await fetch(`${origin}/sitemap.xml`, { signal: AbortSignal.timeout(2500) });
     const sitemapFound = sitemapRes.ok;
 
     return {

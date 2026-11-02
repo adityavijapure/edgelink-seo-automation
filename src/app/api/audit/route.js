@@ -73,18 +73,23 @@ export async function POST(request) {
       clientId: audit.clientId
     });
 
-    // Execute pipeline runner
-    runAuditPipeline(audit.id).catch(err => {
-      console.error(`Pipeline failed for audit ${audit.id}:`, err);
-    });
+    // In serverless / Vercel environments, background promises freeze upon returning an HTTP response.
+    // Execute the optimized pipeline runner synchronously so all 10 stages complete reliably.
+    try {
+      await runAuditPipeline(audit.id);
+    } catch (pipelineErr) {
+      console.error(`Pipeline execution failed for audit ${audit.id}:`, pipelineErr);
+    }
+
+    const completedAudit = (await getAuditById(audit.id)) || audit;
 
     return NextResponse.json({
-      message: 'Audit job queued in BullMQ [seo-audit-jobs]',
+      message: 'Audit job queued in BullMQ [seo-audit-jobs] and executed',
       auditId: audit.id,
       jobId: queueResult.jobId,
       isBullMQ: queueResult.isBullMQ,
-      audit
-    }, { status: 202 });
+      audit: completedAudit
+    }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

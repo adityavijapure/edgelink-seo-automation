@@ -342,28 +342,69 @@ async function createAudit(auditData) {
 
   if (prisma && process.env.DATABASE_URL) {
     try {
-      await prisma.queueJob.create({
+      const targetClientId = newAudit.clientId || 'adhoc-client';
+      newAudit.clientId = targetClientId;
+      const memC = store.clients.find(c => c.id === targetClientId);
+
+      await prisma.audit.create({
+        data: {
+          id: newAudit.id,
+          url: newAudit.url,
+          businessType: newAudit.businessType || 'Local Business',
+          city: newAudit.city || 'Pune',
+          state: newAudit.state || 'Maharashtra',
+          status: 'QUEUED',
+          currentStep: 0,
+          totalSteps: 10,
+          progressPercent: 0,
+          logs: newAudit.logs,
+          whatsappStatus: 'PENDING',
+          createdAt: new Date(),
+          client: {
+            connectOrCreate: {
+              where: { id: targetClientId },
+              create: {
+                id: targetClientId,
+                name: memC?.name || auditData.clientName || 'Client ' + targetClientId,
+                websiteUrl: memC?.websiteUrl || newAudit.url || 'https://example.com',
+                businessType: memC?.businessType || newAudit.businessType || 'Local Business',
+                city: memC?.city || newAudit.city || 'Pune',
+                state: memC?.state || newAudit.state || 'Maharashtra',
+                phone: memC?.phone || newAudit.recipientPhone || '+91 98200 12345',
+                email: memC?.email || newAudit.recipientEmail || 'info@client.com',
+                status: 'ACTIVE'
+              }
+            }
+          }
+        }
+      });
+
+      prisma.queueJob.create({
         data: {
           id: newJob.id,
           jobId: newJob.id,
           queueName: 'seo-audit-jobs',
-          clientId: auditData.clientId,
+          clientId: targetClientId,
           auditId: newAudit.id,
           status: 'QUEUED',
           progress: 0,
           createdAt: new Date()
         }
-      });
+      }).catch(() => {});
     } catch (e) {
-      console.warn('[Prisma] Could not create queue_job record:', e.message);
+      console.warn('[Prisma] Could not create audit/queue_job record in DB:', e.message);
     }
   }
 
   return newAudit;
 }
 
-async function updateAudit(id, updates) {
-  const audit = store.audits.find(a => a.id === id);
+async function updateAudit(id, updates, options = {}) {
+  let audit = store.audits.find(a => a.id === id);
+  if (!audit) {
+    audit = await getAuditById(id);
+    if (audit) store.audits.unshift(audit);
+  }
   if (!audit) return null;
   Object.assign(audit, updates);
 
@@ -383,29 +424,60 @@ async function updateAudit(id, updates) {
     }
   }
 
-  // Persist to Prisma if available
-  if (prisma && process.env.DATABASE_URL && updates.status === 'COMPLETED') {
+  // Only persist to Prisma if COMPLETED or FAILED or explicitly requested
+  const shouldPersist = options.persistToDb ?? (updates.status === 'COMPLETED' || updates.status === 'FAILED');
+
+  if (shouldPersist && prisma && process.env.DATABASE_URL) {
     try {
+      const dataToUpdate = {};
+      if (updates.status) dataToUpdate.status = updates.status;
+      if (updates.currentStep !== undefined) dataToUpdate.currentStep = updates.currentStep;
+      if (updates.totalSteps !== undefined) dataToUpdate.totalSteps = updates.totalSteps;
+      if (updates.progressPercent !== undefined) dataToUpdate.progressPercent = updates.progressPercent;
+      if (updates.logs) dataToUpdate.logs = updates.logs;
+      if (updates.overallScore !== undefined) dataToUpdate.overallScore = updates.overallScore;
+      if (updates.scoreBreakdown) dataToUpdate.scoreBreakdown = updates.scoreBreakdown;
+      if (updates.criticalIssues) dataToUpdate.criticalIssues = updates.criticalIssues;
+      if (updates.importantIssues) dataToUpdate.importantIssues = updates.importantIssues;
+      if (updates.quickWins) dataToUpdate.quickWins = updates.quickWins;
+      if (updates.executiveSummary) dataToUpdate.executiveSummary = updates.executiveSummary;
+      if (updates.pagespeedData) dataToUpdate.pagespeedData = updates.pagespeedData;
+      if (updates.gscData) dataToUpdate.gscData = updates.gscData;
+      if (updates.rankingsData) dataToUpdate.rankingsData = updates.rankingsData;
+      if (updates.pdfPath) dataToUpdate.pdfPath = updates.pdfPath;
+      if (updates.pdfUrl) dataToUpdate.pdfUrl = updates.pdfUrl;
+      if (updates.whatsappNotificationStatus) dataToUpdate.whatsappStatus = updates.whatsappNotificationStatus;
+      if (updates.status === 'COMPLETED') {
+        dataToUpdate.completedAt = new Date();
+        dataToUpdate.whatsappStatus = 'SENT';
+      }
+
+      if (audit.clientId) {
+        const memC = store.clients.find(c => c.id === audit.clientId);
+        try {
+          await prisma.client.upsert({
+            where: { id: audit.clientId },
+            update: {},
+            create: {
+              id: audit.clientId,
+              name: memC?.name || audit.businessType || 'Client ' + audit.clientId,
+              websiteUrl: memC?.websiteUrl || audit.url || 'https://example.com',
+              businessType: memC?.businessType || audit.businessType || 'Local Business',
+              city: memC?.city || audit.city || 'Pune',
+              state: memC?.state || audit.state || 'Maharashtra',
+              phone: memC?.phone || audit.recipientPhone || '+91 98200 12345',
+              email: memC?.email || audit.recipientEmail || 'info@client.com',
+              status: 'ACTIVE'
+            }
+          });
+        } catch (cUpsertErr) {
+          // ignore if already present
+        }
+      }
+
       await prisma.audit.upsert({
         where: { id },
-        update: {
-          status: updates.status,
-          currentStep: updates.currentStep || 10,
-          progressPercent: updates.progressPercent || 100,
-          overallScore: updates.overallScore,
-          scoreBreakdown: updates.scoreBreakdown,
-          criticalIssues: updates.criticalIssues,
-          importantIssues: updates.importantIssues,
-          quickWins: updates.quickWins,
-          executiveSummary: updates.executiveSummary,
-          pagespeedData: updates.pagespeedData,
-          gscData: updates.gscData,
-          rankingsData: updates.rankingsData,
-          pdfPath: updates.pdfPath,
-          pdfUrl: updates.pdfUrl,
-          completedAt: new Date(),
-          whatsappStatus: 'SENT'
-        },
+        update: dataToUpdate,
         create: {
           id,
           clientId: audit.clientId,
@@ -413,61 +485,64 @@ async function updateAudit(id, updates) {
           businessType: audit.businessType || 'Local Business',
           city: audit.city || 'Pune',
           state: audit.state || 'Maharashtra',
-          status: updates.status,
-          currentStep: 10,
-          progressPercent: 100,
-          overallScore: updates.overallScore,
-          scoreBreakdown: updates.scoreBreakdown,
-          criticalIssues: updates.criticalIssues,
-          importantIssues: updates.importantIssues,
-          quickWins: updates.quickWins,
-          executiveSummary: updates.executiveSummary,
-          pagespeedData: updates.pagespeedData,
-          gscData: updates.gscData,
-          rankingsData: updates.rankingsData,
-          pdfPath: updates.pdfPath,
-          pdfUrl: updates.pdfUrl,
-          completedAt: new Date(),
-          whatsappStatus: 'SENT'
+          status: updates.status || 'QUEUED',
+          currentStep: updates.currentStep || 0,
+          totalSteps: 10,
+          progressPercent: updates.progressPercent || 0,
+          logs: updates.logs || audit.logs || [],
+          whatsappStatus: updates.whatsappNotificationStatus || 'PENDING'
         }
       });
 
-      // Also update QueueJob in Prisma
-      try {
-        await prisma.queueJob.updateMany({
-          where: { auditId: id },
-          data: {
-            status: 'COMPLETED',
-            progress: 100,
-            completedAt: new Date()
-          }
-        });
-      } catch (qErr) {
-        console.warn('[Prisma] QueueJob update notice:', qErr.message);
+      // Update Client, QueueJob, and Recommendations in parallel
+      const ancillaryTasks = [];
+
+      if (updates.status === 'COMPLETED' && updates.overallScore && audit.clientId) {
+        ancillaryTasks.push(
+          prisma.client.update({
+            where: { id: audit.clientId },
+            data: {
+              latestScore: updates.overallScore,
+              lastAuditDate: new Date(),
+              status: 'ACTIVE'
+            }
+          }).catch(() => {})
+        );
       }
 
-      // Also persist recommendations to Prisma if provided
+      ancillaryTasks.push(
+        prisma.queueJob.updateMany({
+          where: { auditId: id },
+          data: {
+            status: updates.status || 'RUNNING',
+            progress: updates.progressPercent || (updates.status === 'COMPLETED' ? 100 : 0),
+            completedAt: updates.status === 'COMPLETED' ? new Date() : undefined
+          }
+        }).catch(() => {})
+      );
+
       if (Array.isArray(updates.recommendations) && updates.recommendations.length > 0) {
-        try {
-          await prisma.recommendation.deleteMany({ where: { auditId: id } });
-          await prisma.recommendation.createMany({
-            data: updates.recommendations.map(r => ({
-              auditId: id,
-              priority: r.priority || 'HIGH',
-              category: r.category || 'General',
-              finding: r.finding || '',
-              fix: r.fix || '',
-              estimatedImpact: r.estimatedImpact || r.estimated_impact || 'Medium',
-              effort: r.effort || 'Hours',
-              falsifiabilityCheck: r.falsifiabilityCheck || r.falsifiability_check || ''
+        ancillaryTasks.push(
+          prisma.recommendation.deleteMany({ where: { auditId: id } })
+            .then(() => prisma.recommendation.createMany({
+              data: updates.recommendations.map(r => ({
+                auditId: id,
+                priority: r.priority || 'HIGH',
+                category: r.category || 'General',
+                finding: r.finding || '',
+                fix: r.fix || '',
+                estimatedImpact: r.estimatedImpact || r.estimated_impact || 'Medium',
+                effort: r.effort || 'Hours',
+                falsifiabilityCheck: r.falsifiabilityCheck || r.falsifiability_check || ''
+              }))
             }))
-          });
-        } catch (rErr) {
-          console.warn('[Prisma] Recommendation child persist notice:', rErr.message);
-        }
+            .catch(() => {})
+        );
       }
+
+      await Promise.all(ancillaryTasks);
     } catch (e) {
-      console.warn('[Prisma] Failed to persist audit to DB:', e.message);
+      console.warn('[Prisma] Failed to update audit in DB:', e.message);
     }
   }
 

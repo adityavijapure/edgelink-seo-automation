@@ -318,6 +318,11 @@ function buildDynamicAudit(params) {
 }
 
 async function runClaudeAudit(params) {
+  if (USE_MOCKS) {
+    console.log('[Claude Analyst] USE_MOCKS active: generating instantaneous domain-tailored analysis');
+    return buildDynamicAudit(params);
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
@@ -326,11 +331,11 @@ async function runClaudeAudit(params) {
   }
 
   try {
-    console.log('[Claude Analyst] 🤖 Sending live request to Anthropic Claude 3.5 Sonnet API (10s timeout)...');
+    console.log('[Claude Analyst] 🤖 Sending live request to Anthropic Claude 3.5 Sonnet API (4s timeout)...');
     const userPrompt = buildUserPrompt(params);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s maximum timeout
+    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s maximum timeout to preserve Vercel budget
 
     let response;
     try {

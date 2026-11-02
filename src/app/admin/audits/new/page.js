@@ -168,6 +168,12 @@ function NewAuditContent() {
       if (res.ok && data.auditId) {
         setAuditId(data.auditId);
         setAuditData(data.audit);
+        if (data.audit?.logs && data.audit.logs.length > 0) {
+          setLogs(data.audit.logs);
+        }
+        if (data.audit?.status === 'COMPLETED' || data.audit?.status === 'FAILED') {
+          setIsRunning(false);
+        }
       } else {
         setIsRunning(false);
         alert(data.error || 'Failed to trigger audit');

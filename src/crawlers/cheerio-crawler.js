@@ -6,30 +6,37 @@ const { normalizeUrl, extractDomainName } = require('../lib/url-normalizer');
 async function crawlUrl(rawUrl) {
   const url = normalizeUrl(rawUrl);
 
-  if (USE_MOCKS && (!url || url.includes('example-dental-clinic.com'))) {
+  if (USE_MOCKS) {
+    const domain = extractDomainName(url || 'https://example-dental-clinic.com');
+    const isDental = domain.includes('dental') || domain.includes('smile') || domain.includes('clinic');
     return {
       url: url || 'https://example-dental-clinic.com',
       statusCode: 200,
-      title: 'Best Dental Clinic in Pune | Dr. Smile Advanced Dentistry',
-      metaDescription: 'Leading dental clinic in Pune offering painless root canal, dental implants, teeth whitening and smile design. Book an appointment today!',
+      title: isDental ? 'Best Dental Clinic in Pune | Dr. Smile Advanced Dentistry' : `${domain.charAt(0).toUpperCase() + domain.slice(1)} | Official Website & Services`,
+      metaDescription: isDental ? 'Leading dental clinic in Pune offering painless root canal, dental implants, teeth whitening and smile design. Book an appointment today!' : `Leading services, products and verified solutions from ${domain}.`,
       canonical: url || 'https://example-dental-clinic.com',
-      wordCount: 840,
-      h1: ['Advanced Dental Care in Pune'],
-      h2: [
+      wordCount: isDental ? 840 : 1250,
+      h1: [isDental ? 'Advanced Dental Care in Pune' : `Featured Products & Solutions on ${domain}`],
+      h2: isDental ? [
         'Our Specialized Dental Services',
         'Meet Our Dental Specialists',
         'Patient Testimonials & Reviews',
         'Book Your Consultation Today'
+      ] : [
+        'Top Rated Categories',
+        'Customer Reviews & Testimonials',
+        'Verified Specialists & Support',
+        'Get Started Today'
       ],
-      h3: ['Dental Implants', 'Root Canal Treatment', 'Invisalign & Braces', 'Teeth Whitening'],
+      h3: ['Best Sellers', 'Customer Support', 'Consultation & Inquiries'],
       imagesTotal: 14,
       imagesMissingAlt: 5,
       linksInternal: 28,
       linksExternal: 4,
       openGraph: {
-        title: 'Best Dental Clinic in Pune | Dr. Smile Advanced Dentistry',
-        description: 'Award winning dental clinic in Pune. Painless treatments by experts.',
-        image: 'https://example-dental-clinic.com/og-banner.jpg'
+        title: `${domain} Portal`,
+        description: `Award winning services and solutions by ${domain}.`,
+        image: ''
       },
       hasSsl: true,
       viewportConfigured: true,
@@ -45,7 +52,7 @@ async function crawlUrl(rawUrl) {
         'Accept-Language': 'en-US,en;q=0.9'
       },
       redirect: 'follow',
-      signal: AbortSignal.timeout(12000)
+      signal: AbortSignal.timeout(3000)
     });
 
     const html = await response.text();
