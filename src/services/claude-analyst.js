@@ -161,6 +161,84 @@ const DEFAULT_MOCK_AUDIT = {
   executive_summary: "The website exhibits solid local relevance with 4,560 organic impressions and a top 4 ranking for primary Pune dental queries. However, a slow mobile LCP of 4.2s and missing local schema signals are restricting entry into Google's 3-Pack and dragging overall SEO health to 68/100. Implementing the quick wins on image optimization and schema will immediately elevate rankings for high-value dental implant keywords."
 };
 
+
+function extractJsonFromResponse(rawContent) {
+  if (!rawContent || typeof rawContent !== 'string') return null;
+  // 1. Direct JSON parse
+  try {
+    return JSON.parse(rawContent.trim());
+  } catch (e) {}
+
+  // 2. Extract from markdown code fences
+  const codeBlockMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (codeBlockMatch && codeBlockMatch[1]) {
+    try {
+      return JSON.parse(codeBlockMatch[1].trim());
+    } catch (e) {}
+  }
+
+  // 3. Extract outermost JSON object
+  const firstBrace = rawContent.indexOf('{');
+  const lastBrace = rawContent.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    try {
+      return JSON.parse(rawContent.slice(firstBrace, lastBrace + 1));
+    } catch (e) {}
+  }
+
+  return null;
+}
+
+function normalizeAuditOutput(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const overallScore = Number(raw.overall_score ?? raw.overallScore ?? 70);
+  const scoreBreakdown = {
+    technical: Number(raw.score_breakdown?.technical ?? raw.scoreBreakdown?.technical ?? 75),
+    on_page: Number(raw.score_breakdown?.on_page ?? raw.scoreBreakdown?.onPage ?? 75),
+    content: Number(raw.score_breakdown?.content ?? raw.scoreBreakdown?.content ?? 75),
+    core_web_vitals: Number(raw.score_breakdown?.core_web_vitals ?? raw.scoreBreakdown?.coreWebVitals ?? 70),
+    schema: Number(raw.score_breakdown?.schema ?? raw.scoreBreakdown?.schema ?? 75),
+  };
+  const recommendations = Array.isArray(raw.recommendations)
+    ? raw.recommendations.map(r => ({
+        priority: (r.priority || 'HIGH').toUpperCase(),
+        category: r.category || 'General',
+        finding: r.finding || '',
+        fix: r.fix || '',
+        estimated_impact: r.estimated_impact || r.estimatedImpact || 'Medium',
+        effort: r.effort || 'Hours',
+        falsifiability_check: r.falsifiability_check || r.falsifiabilityCheck || 'Verify with search audit.'
+      }))
+    : [];
+  const criticalIssues = Array.isArray(raw.critical_issues ?? raw.criticalIssues)
+    ? (raw.critical_issues ?? raw.criticalIssues)
+    : [];
+  const importantIssues = Array.isArray(raw.important_issues ?? raw.importantIssues)
+    ? (raw.important_issues ?? raw.importantIssues)
+    : [];
+  const quickWins = Array.isArray(raw.quick_wins ?? raw.quickWins)
+    ? (raw.quick_wins ?? raw.quickWins)
+    : [];
+  const executiveSummary = String(raw.executive_summary ?? raw.executiveSummary ?? '');
+
+  return {
+    audit_version: raw.audit_version || 'v1.0',
+    overall_score: overallScore,
+    overallScore,
+    score_breakdown: scoreBreakdown,
+    scoreBreakdown,
+    critical_issues: criticalIssues,
+    criticalIssues,
+    important_issues: importantIssues,
+    importantIssues,
+    quickWins,
+    quick_wins: quickWins,
+    recommendations,
+    executiveSummary,
+    executive_summary: executiveSummary
+  };
+}
+
 function buildDynamicAudit(params) {
   const url = params.url || 'https://example-dental-clinic.com';
   const domain = extractDomainName(url);
@@ -171,7 +249,7 @@ function buildDynamicAudit(params) {
   const imagesMissingAlt = onPage.imagesMissingAlt || 3;
   const isEcom = /flipkart|amazon|shop|store|myntra|ebay/i.test(domain);
 
-  return {
+  return normalizeAuditOutput({
     audit_version: "v1.0",
     overall_score: isEcom ? 76 : 70,
     score_breakdown: {
@@ -236,7 +314,7 @@ function buildDynamicAudit(params) {
       }
     ],
     executive_summary: `Audit for ${domain} (${title}): The site displays solid domain authority and rich page structure with ${wordCount} words and ${imagesTotal} media elements. However, mobile performance (LCP 3.8s) and missing image alt attributes represent clear quick-win optimization opportunities. Addressing the critical schema and media compression items will boost organic search visibility across target query categories.`
-  };
+  });
 }
 
 async function runClaudeAudit(params) {
@@ -248,24 +326,34 @@ async function runClaudeAudit(params) {
   }
 
   try {
-    console.log('[Claude Analyst] 🤖 Sending live request to Anthropic Claude 3.5 Sonnet API...');
+    console.log('[Claude Analyst] 🤖 Sending live request to Anthropic Claude 3.5 Sonnet API (10s timeout)...');
     const userPrompt = buildUserPrompt(params);
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 3500,
-        system: SYSTEM_PROMPT,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ]
-      })
-    });
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s maximum timeout
+
+    let response;
+    try {
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 3500,
+          system: SYSTEM_PROMPT,
+          messages: [
+            { role: 'user', content: userPrompt }
+          ]
+        })
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errText = await response.text();
@@ -276,16 +364,17 @@ async function runClaudeAudit(params) {
 
     const data = await response.json();
     const rawContent = data.content?.[0]?.text || '';
-    
-    // Parse JSON safely
-    const cleanJson = rawContent.replace(/```json\n?|\n?```/g, '').trim();
-    const parsed = JSON.parse(cleanJson);
-    console.log('[Claude Analyst] ✅ Successfully received live analysis from Claude 3.5 Sonnet!');
-    return parsed;
+    const parsed = extractJsonFromResponse(rawContent);
+    if (!parsed) {
+      console.warn('[Claude Analyst Warning] Could not parse structured JSON from Claude response, using dynamic site analysis.');
+      return buildDynamicAudit(params);
+    }
+    console.log('[Claude Analyst] ✅ Successfully received and validated live analysis from Claude 3.5 Sonnet!');
+    return normalizeAuditOutput(parsed);
   } catch (err) {
     console.error('[Claude Analyst Error]:', err.message);
     return buildDynamicAudit(params);
   }
 }
 
-module.exports = { runClaudeAudit, SYSTEM_PROMPT, buildUserPrompt, DEFAULT_MOCK_AUDIT, buildDynamicAudit };
+module.exports = { runClaudeAudit, SYSTEM_PROMPT, buildUserPrompt, DEFAULT_MOCK_AUDIT, buildDynamicAudit, extractJsonFromResponse, normalizeAuditOutput };

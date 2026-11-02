@@ -45,3 +45,4 @@ function extractDomainName(url) {
 }
 
 module.exports = { normalizeUrl, extractDomainName };
+

@@ -1,6 +1,26 @@
 // src/workers/audit.worker.js
 // Standalone BullMQ Worker for Node.js / VPS deployment
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (e) {
+  const fs = require('fs');
+  const path = require('path');
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+    for (const line of lines) {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let val = (match[2] || '').trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (!process.env[key]) process.env[key] = val;
+      }
+    }
+  }
+}
 const { Worker } = require('bullmq');
 const IORedis = require('ioredis');
 const { runAuditPipeline } = require('../services/audit-runner');
@@ -21,7 +41,19 @@ if (!redisUrl) {
   const connection = new IORedis(redisUrl, {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
+    retryStrategy(times) {
+      const delay = Math.min(times * 1000, 5000);
+      return delay;
+    },
     tls: redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
+  });
+
+  connection.on('error', (err) => {
+    if (err.code === 'ECONNREFUSED' || err.code === 'EACCES') {
+      console.warn('[Worker Notice] Waiting for Redis connection at ' + redisUrl + '...');
+    } else {
+      console.warn('[Worker Notice] Redis status:', err.message);
+    }
   });
 
   const worker = new Worker(

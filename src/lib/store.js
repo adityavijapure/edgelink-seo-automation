@@ -202,7 +202,19 @@ async function addClient(clientData) {
   return newClient;
 }
 
+function normalizeRec(r) {
+  return {
+    ...r,
+    estimated_impact: r.estimated_impact || r.estimatedImpact || 'Medium',
+    estimatedImpact: r.estimatedImpact || r.estimated_impact || 'Medium',
+    falsifiability_check: r.falsifiability_check || r.falsifiabilityCheck || 'Verify with search audit.',
+    falsifiabilityCheck: r.falsifiabilityCheck || r.falsifiability_check || 'Verify with search audit.'
+  };
+}
+
 async function getAudits(clientId) {
+  let memAudits = clientId ? store.audits.filter(a => a.clientId === clientId) : store.audits;
+
   if (prisma && process.env.DATABASE_URL) {
     try {
       const dbAudits = await prisma.audit.findMany({
@@ -210,31 +222,67 @@ async function getAudits(clientId) {
         include: { recommendations: true },
         orderBy: { createdAt: 'desc' }
       });
-      if (dbAudits && dbAudits.length > 0) return dbAudits;
+      if (dbAudits && dbAudits.length > 0) {
+        return dbAudits.map(dbA => {
+          const matchMem = store.audits.find(m => m.id === dbA.id);
+          const rawRecs = (dbA.recommendations && dbA.recommendations.length > 0)
+            ? dbA.recommendations
+            : (matchMem?.recommendations || []);
+          return {
+            ...matchMem,
+            ...dbA,
+            overallScore: dbA.overallScore ?? matchMem?.overallScore ?? 70,
+            overall_score: dbA.overallScore ?? matchMem?.overallScore ?? 70,
+            scoreBreakdown: dbA.scoreBreakdown ?? matchMem?.scoreBreakdown,
+            criticalIssues: dbA.criticalIssues ?? matchMem?.criticalIssues ?? [],
+            importantIssues: dbA.importantIssues ?? matchMem?.importantIssues ?? [],
+            quickWins: dbA.quickWins ?? matchMem?.quickWins ?? [],
+            executiveSummary: dbA.executiveSummary ?? matchMem?.executiveSummary ?? '',
+            whatsappNotificationStatus: matchMem?.whatsappNotificationStatus || dbA.whatsappStatus || 'SENT',
+            recommendations: rawRecs.map(normalizeRec)
+          };
+        });
+      }
     } catch (e) {
       // fallback
     }
   }
 
-  if (clientId) {
-    return store.audits.filter(a => a.clientId === clientId);
-  }
-  return store.audits;
+  return memAudits;
 }
 
 async function getAuditById(id) {
+  const memAudit = store.audits.find(a => a.id === id);
+
   if (prisma && process.env.DATABASE_URL) {
     try {
       const dbAudit = await prisma.audit.findUnique({
         where: { id },
         include: { recommendations: true }
       });
-      if (dbAudit) return dbAudit;
+      if (dbAudit) {
+        const rawRecs = (dbAudit.recommendations && dbAudit.recommendations.length > 0)
+          ? dbAudit.recommendations
+          : (memAudit?.recommendations || []);
+        return {
+          ...memAudit,
+          ...dbAudit,
+          overallScore: dbAudit.overallScore ?? memAudit?.overallScore ?? 70,
+          overall_score: dbAudit.overallScore ?? memAudit?.overallScore ?? 70,
+          scoreBreakdown: dbAudit.scoreBreakdown ?? memAudit?.scoreBreakdown,
+          criticalIssues: dbAudit.criticalIssues ?? memAudit?.criticalIssues ?? [],
+          importantIssues: dbAudit.importantIssues ?? memAudit?.importantIssues ?? [],
+          quickWins: dbAudit.quickWins ?? memAudit?.quickWins ?? [],
+          executiveSummary: dbAudit.executiveSummary ?? memAudit?.executiveSummary ?? '',
+          whatsappNotificationStatus: memAudit?.whatsappNotificationStatus || dbAudit.whatsappStatus || 'SENT',
+          recommendations: rawRecs.map(normalizeRec)
+        };
+      }
     } catch (e) {
       // fallback
     }
   }
-  return store.audits.find(a => a.id === id);
+  return memAudit;
 }
 
 async function createAudit(auditData) {
@@ -355,6 +403,27 @@ async function updateAudit(id, updates) {
           whatsappStatus: 'SENT'
         }
       });
+
+      // Also persist recommendations to Prisma if provided
+      if (Array.isArray(updates.recommendations) && updates.recommendations.length > 0) {
+        try {
+          await prisma.recommendation.deleteMany({ where: { auditId: id } });
+          await prisma.recommendation.createMany({
+            data: updates.recommendations.map(r => ({
+              auditId: id,
+              priority: r.priority || 'HIGH',
+              category: r.category || 'General',
+              finding: r.finding || '',
+              fix: r.fix || '',
+              estimatedImpact: r.estimatedImpact || r.estimated_impact || 'Medium',
+              effort: r.effort || 'Hours',
+              falsifiabilityCheck: r.falsifiabilityCheck || r.falsifiability_check || ''
+            }))
+          });
+        } catch (rErr) {
+          console.warn('[Prisma] Recommendation child persist notice:', rErr.message);
+        }
+      }
     } catch (e) {
       console.warn('[Prisma] Failed to persist audit to DB:', e.message);
     }

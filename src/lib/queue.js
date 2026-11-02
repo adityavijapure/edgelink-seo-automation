@@ -15,11 +15,16 @@ if (redisUrl) {
     redisConnection = new IORedis(redisUrl, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
+      lazyConnect: true,
       tls: redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
     });
 
+    redisConnection.on('error', (err) => {
+      // Graceful suppression when Redis is offline in local dev
+    });
+
     auditQueue = new Queue(QUEUE_NAME, { connection: redisConnection });
-    console.log(`[BullMQ] Connected to Redis queue: ${QUEUE_NAME}`);
+    console.log(`[BullMQ] Configured Redis queue: ${QUEUE_NAME}`);
   } catch (err) {
     console.warn('[BullMQ] Redis connection error, falling back to local queue runner:', err.message);
   }

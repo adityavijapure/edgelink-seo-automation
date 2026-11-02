@@ -2,6 +2,8 @@
 import { NextResponse } from 'next/server';
 const { getAuditById, getClientById } = require('@/lib/store');
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request, { params }) {
   const { id } = params;
   const audit = await getAuditById(id);

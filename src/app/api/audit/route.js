@@ -5,6 +5,9 @@ const { runAuditPipeline } = require('@/services/audit-runner');
 const { addAuditJob } = require('@/lib/queue');
 const { normalizeUrl } = require('@/lib/url-normalizer');
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const clientId = searchParams.get('clientId');

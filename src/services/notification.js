@@ -17,7 +17,15 @@ function formatPhoneNumber(phone) {
 async function sendRealTwilioWhatsApp(to, message, mediaUrl) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const fromNumber = process.env.TWILIO_WHATSAPP_FROM || '+14155238886'; // Twilio sandbox default
+  const rawFrom = process.env.TWILIO_WHATSAPP_FROM || '+14155238886';
+
+  let cleanFrom = rawFrom.replace(/whatsapp:/i, '').replace(/[^0-9+]/g, '');
+  if (cleanFrom.startsWith('++')) cleanFrom = cleanFrom.replace(/^\++/, '+');
+  if (!cleanFrom.startsWith('+')) cleanFrom = '+' + cleanFrom;
+
+  let cleanTo = to.replace(/whatsapp:/i, '').replace(/[^0-9+]/g, '');
+  if (cleanTo.startsWith('++')) cleanTo = cleanTo.replace(/^\++/, '+');
+  if (!cleanTo.startsWith('+')) cleanTo = '+' + cleanTo;
 
   if (!accountSid || !authToken) {
     throw new Error('Twilio credentials not configured');
@@ -27,10 +35,10 @@ async function sendRealTwilioWhatsApp(to, message, mediaUrl) {
   const authHeader = 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64');
 
   const params = new URLSearchParams();
-  params.append('From', fromNumber.startsWith('whatsapp:') ? fromNumber : `whatsapp:${fromNumber}`);
-  params.append('To', to.startsWith('whatsapp:') ? to : `whatsapp:${to}`);
+  params.append('From', `whatsapp:${cleanFrom}`);
+  params.append('To', `whatsapp:${cleanTo}`);
   params.append('Body', message);
-  if (mediaUrl) {
+  if (mediaUrl && /^https?:\/\//i.test(mediaUrl) && !mediaUrl.includes('localhost')) {
     params.append('MediaUrl', mediaUrl);
   }
 
@@ -45,12 +53,15 @@ async function sendRealTwilioWhatsApp(to, message, mediaUrl) {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.message || 'Twilio WhatsApp dispatch failed');
+    if (data.code === 21654) {
+      console.warn(`[Twilio Notice] WhatsApp template required or conversation window closed. Send 'Hi' on WhatsApp from ${cleanTo} to ${cleanFrom} to open a 24-hr session.`);
+    }
+    throw new Error(data.message || `Twilio dispatch failed (${data.code})`);
   }
   return { status: 'sent', sid: data.sid, timestamp: new Date().toISOString() };
 }
 
-async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone) {
+async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone, clientEmail) {
   const recipient = formatPhoneNumber(clientPhone || '+918624086811');
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const fullPdfUrl = `${baseUrl}${pdfPath}`;
@@ -62,7 +73,7 @@ async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone) {
 
   const hasTwilioCreds = Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
 
-  if (!USE_MOCKS && hasTwilioCreds) {
+  if (hasTwilioCreds) {
     try {
       console.log(`[Twilio WhatsApp] Sending live PDF alert to ${recipient}...`);
       const result = await sendRealTwilioWhatsApp(recipient, message, fullPdfUrl);
@@ -80,12 +91,22 @@ async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone) {
     }
   }
 
-  // Console log mock (Section 2.3 specification)
+  const recipientEmail = clientEmail || 'rahul@example-dental-clinic.com';
+
+  // Console log mock for WhatsApp (Section 2.3 specification)
   const mockResult = await mockSendWhatsApp(clientId, pdfPath, score, recipient);
+
+  // Console log mock for Email (Section 1.1 & Section 3.1 specification)
+  console.log('[MOCK EMAIL]    → Recipient:  ' + recipientEmail);
+  console.log('[MOCK EMAIL]    → Subject:    Your SEO Audit Report is Ready (Score: ' + score + '/100)');
+  console.log('[MOCK EMAIL]    → Attachment: ' + pdfPath);
+
   return {
     success: true,
     result: mockResult,
     recipient,
+    recipientPhone: recipient,
+    recipientEmail,
     isLive: false,
     whatsappShareUrl,
     pdfUrl: fullPdfUrl

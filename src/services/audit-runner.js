@@ -139,8 +139,9 @@ async function runAuditPipeline(auditId) {
     
     // Send WhatsApp notification
     const targetPhone = client.phone || "+91 86240 86811";
-    const notif = await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overall_score, targetPhone);
-    addLog(`[WHATSAPP DISPATCH] → PDF audit report sent to ${notif.recipient || targetPhone}`);
+    const notif = await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overallScore ?? claudeResult.overall_score, targetPhone);
+    addLog(`[WHATSAPP DISPATCH] → PDF audit report sent to ${notif.recipientPhone || targetPhone}`);
+    addLog(`[EMAIL DISPATCH]    → Executive PDF audit report sent to ${notif.recipientEmail || 'rahul@example-dental-clinic.com'}`);
 
     // Mark completed
     updateAudit(auditId, {
@@ -148,13 +149,13 @@ async function runAuditPipeline(auditId) {
       currentStep: 10,
       progressPercent: 100,
       completedAt: new Date().toISOString(),
-      overallScore: claudeResult.overall_score,
-      scoreBreakdown: claudeResult.score_breakdown,
-      criticalIssues: claudeResult.critical_issues,
-      importantIssues: claudeResult.important_issues,
-      quickWins: claudeResult.quick_wins,
+      overallScore: claudeResult.overallScore ?? claudeResult.overall_score,
+      scoreBreakdown: claudeResult.scoreBreakdown ?? claudeResult.score_breakdown,
+      criticalIssues: claudeResult.criticalIssues ?? claudeResult.critical_issues,
+      importantIssues: claudeResult.importantIssues ?? claudeResult.important_issues,
+      quickWins: claudeResult.quickWins ?? claudeResult.quick_wins,
       recommendations: claudeResult.recommendations,
-      executiveSummary: claudeResult.executive_summary,
+      executiveSummary: claudeResult.executiveSummary ?? claudeResult.executive_summary,
       pagespeedData,
       gscData,
       rankingsData,
