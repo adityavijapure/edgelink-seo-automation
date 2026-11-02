@@ -9,7 +9,8 @@ import {
   Layers, 
   BarChart3, 
   ShieldCheck, 
-  Zap,
+  Plus,
+  Activity,
   Globe
 } from 'lucide-react';
 
@@ -20,46 +21,46 @@ export default function Navbar() {
   const isClient = pathname.startsWith('/client');
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-slate-100 shadow-md">
+    <header className="sticky top-0 z-50 bg-slate-950 border-b border-slate-800 text-slate-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 group-hover:scale-105 transition-transform">
-                <Globe className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 group-hover:bg-teal-500/20 transition-all">
+                <Globe className="w-4 h-4" />
               </div>
-              <div>
-                <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                  SEO Pulse <span className="text-teal-400 text-xs px-1.5 py-0.5 rounded bg-teal-500/20 border border-teal-500/30 font-semibold uppercase">Engine</span>
+              <div className="flex flex-col">
+                <span className="text-base font-bold tracking-tight text-white leading-tight">
+                  SEO Automation Dashboard
                 </span>
-                <p className="text-[10px] text-slate-400 -mt-1">Audit & Automation Dashboard</p>
+                <span className="text-[10px] text-slate-400 font-medium">Audit & Intelligence Platform</span>
               </div>
             </Link>
 
             {/* Portal Switcher Tabs */}
-            <div className="hidden md:flex items-center ml-8 p-1 bg-slate-800/90 rounded-lg border border-slate-700/60">
+            <div className="hidden md:flex items-center ml-4 p-0.5 bg-slate-900 rounded-lg border border-slate-800">
               <Link
                 href="/admin"
-                className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   isAdmin
-                    ? 'bg-teal-600 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                    ? 'bg-slate-800 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Admin Portal
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+                Operations
               </Link>
               <Link
                 href="/client"
-                className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   isClient
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                    ? 'bg-slate-800 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <BarChart3 className="w-3.5 h-3.5" />
-                Client Dashboard
+                <BarChart3 className="w-3.5 h-3.5 text-blue-400" />
+                Client View
               </Link>
             </div>
           </div>
@@ -71,38 +72,38 @@ export default function Navbar() {
                 <Link
                   href="/admin"
                   className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
-                    pathname === '/admin' ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                    pathname === '/admin' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4" />
+                  <LayoutDashboard className="w-3.5 h-3.5" />
                   Overview
                 </Link>
                 <Link
                   href="/admin/clients"
                   className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
-                    pathname.startsWith('/admin/clients') ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                    pathname.startsWith('/admin/clients') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <Users className="w-4 h-4" />
+                  <Users className="w-3.5 h-3.5" />
                   Clients
                 </Link>
                 <Link
                   href="/admin/audits/new"
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-                    pathname === '/admin/audits/new' ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                    pathname === '/admin/audits/new' ? 'bg-slate-800 text-teal-300' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <PlayCircle className="w-4 h-4 text-teal-400" />
-                  Run Audit Pipeline
+                  <PlayCircle className="w-3.5 h-3.5 text-teal-400" />
+                  Run Audit
                 </Link>
                 <Link
                   href="/admin/queue"
                   className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
-                    pathname === '/admin/queue' ? 'bg-slate-800 text-teal-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                    pathname === '/admin/queue' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <Layers className="w-4 h-4" />
-                  BullMQ Queue
+                  <Layers className="w-3.5 h-3.5" />
+                  Job Queue
                 </Link>
               </>
             ) : (
@@ -110,21 +111,21 @@ export default function Navbar() {
                 <Link
                   href="/client"
                   className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
-                    pathname === '/client' ? 'bg-slate-800 text-blue-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                    pathname === '/client' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <BarChart3 className="w-4 h-4" />
-                  SEO Overview
+                  <BarChart3 className="w-3.5 h-3.5 text-blue-400" />
+                  SEO Scorecard
                 </Link>
                 <Link
                   href="/client#recommendations"
-                  className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
+                  className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors"
                 >
-                  AI Recommendations
+                  Action Plan
                 </Link>
                 <Link
                   href="/client#vitals"
-                  className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
+                  className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors"
                 >
                   Core Web Vitals
                 </Link>
@@ -132,18 +133,18 @@ export default function Navbar() {
             )}
           </nav>
 
-          {/* Right Status Badge & Quick Action */}
+          {/* Right Actions */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-[11px] text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="font-mono">USE_MOCKS: ACTIVE</span>
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px] text-slate-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[11px] text-slate-400">Queue Active</span>
             </div>
             
             <Link
               href="/admin/audits/new"
-              className="hidden sm:inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm shadow-teal-500/20 transition-all hover:shadow"
+              className="inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
             >
-              <Zap className="w-3.5 h-3.5 fill-current" />
+              <Plus className="w-3.5 h-3.5" />
               New Audit
             </Link>
           </div>

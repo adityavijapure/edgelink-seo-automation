@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs bg-teal-100 text-teal-800 font-semibold px-2.5 py-0.5 rounded-full">v1.0 Live</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Manage clients, monitor BullMQ headless crawl pipelines, and inspect Claude AI recommendations.
+            Manage clients, monitor BullMQ crawl pipelines, and track search performance benchmarks.
           </p>
         </div>
 
@@ -154,27 +154,28 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Pipeline Status Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-teal-950 rounded-xl p-5 text-white border border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-slate-900 rounded-xl p-5 text-white border border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400">
-            <Sparkles className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+            <Activity className="w-5 h-5" />
           </div>
           <div>
             <div className="text-sm font-semibold text-white">Full-Stack Audit Pipeline Ready</div>
-            <div className="text-xs text-slate-300">
-              Cheerio Crawler &rarr; PageSpeed &rarr; GSC &rarr; Schema &rarr; DataForSEO &rarr; Claude 3.5 Sonnet &rarr; PDF &rarr; WhatsApp Mock
+            <div className="text-xs text-slate-400">
+              Cheerio Crawler &rarr; PageSpeed CWV &rarr; Search Console &rarr; Schema Validator &rarr; SERP Analytics &rarr; PDF Engine &rarr; Delivery Dispatch
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-lg font-mono text-emerald-400">
-            USE_MOCKS=true
+          <span className="text-xs bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg font-mono text-emerald-400 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Queue Worker Active
           </span>
           <Link
             href="/admin/audits/new"
-            className="text-xs bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold px-4 py-1.5 rounded-lg transition-colors"
+            className="text-xs bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-1.5 rounded-lg transition-colors"
           >
-            Launch Pipeline &rarr;
+            Run Audit &rarr;
           </Link>
         </div>
       </div>
