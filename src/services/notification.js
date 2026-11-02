@@ -3,7 +3,7 @@ const { sendWhatsApp: mockSendWhatsApp } = require('../mocks/twilio.mock');
 const { USE_MOCKS } = require('../mocks');
 
 function formatPhoneNumber(phone) {
-  if (!phone) return '+918624086811';
+  if (!phone) return '+919820012345';
   let clean = phone.replace(/[^0-9+]/g, '');
   if (clean.length === 10) {
     clean = '+91' + clean;
@@ -62,7 +62,7 @@ async function sendRealTwilioWhatsApp(to, message, mediaUrl) {
 }
 
 async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone, clientEmail) {
-  const recipient = formatPhoneNumber(clientPhone || '+918624086811');
+  const recipient = formatPhoneNumber(clientPhone || '+919820012345');
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const fullPdfUrl = `${baseUrl}${pdfPath}`;
   
@@ -102,7 +102,7 @@ async function notifyAuditCompletion(clientId, pdfPath, score, clientPhone, clie
   }
 
   // Console log mock for WhatsApp (Section 2.3 specification)
-  const mockResult = await mockSendWhatsApp(clientId, pdfPath, score, recipient);
+  const mockResult = await mockSendWhatsApp(clientId, pdfPath, score);
 
   // Console log mock for Email (Section 1.1 & Section 3.1 specification)
   console.log('[MOCK EMAIL]    → Recipient:  ' + recipientEmail);

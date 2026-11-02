@@ -19,7 +19,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
     }
 
-    const targetPhone = phone || audit.recipientPhone || '+91 86240 86811';
+    const targetPhone = phone || audit.recipientPhone || '+91 98200 12345';
     const targetEmail = email || audit.recipientEmail || 'rahul@example-dental-clinic.com';
     const pdfPath = audit.pdfPath || `/reports/${auditId}.pdf`;
     const score = audit.overallScore || 70;

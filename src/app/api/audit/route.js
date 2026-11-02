@@ -63,7 +63,7 @@ export async function POST(request) {
       businessType: bType || 'Local Business',
       city: cCity || 'Pune',
       state: sState || 'Maharashtra',
-      recipientPhone: targetPhone || '+91 86240 86811',
+      recipientPhone: targetPhone || '+91 98200 12345',
       recipientEmail: targetEmail || 'rahul@example-dental-clinic.com'
     });
 

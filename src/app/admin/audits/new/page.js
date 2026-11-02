@@ -48,7 +48,7 @@ function NewAuditContent() {
   const [state, setState] = useState('Maharashtra');
 
   // WhatsApp & Email delivery destination states
-  const [whatsappPhone, setWhatsappPhone] = useState('+91 86240 86811');
+  const [whatsappPhone, setWhatsappPhone] = useState('+91 98200 12345');
   const [recipientEmail, setRecipientEmail] = useState('rahul@example-dental-clinic.com');
 
   // On-demand re-dispatch states
@@ -230,7 +230,7 @@ function NewAuditContent() {
 
   const currentStep = auditData?.currentStep || 0;
   const isDone = auditData?.status === 'COMPLETED';
-  const effectivePhone = auditData?.recipientPhone || whatsappPhone || '+91 86240 86811';
+  const effectivePhone = auditData?.recipientPhone || whatsappPhone || '+91 98200 12345';
   const effectiveEmail = auditData?.recipientEmail || recipientEmail || 'rahul@example-dental-clinic.com';
   const cleanPhoneDigits = effectivePhone.replace(/[^0-9]/g, '');
 
@@ -339,13 +339,13 @@ function NewAuditContent() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. +91 86240 86811 or 8624086811"
+                  placeholder="e.g. +91 98200 12345"
                   value={whatsappPhone}
                   onChange={(e) => setWhatsappPhone(e.target.value)}
                   disabled={isRunning}
                   className="mt-1 w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono bg-white"
                 />
-                <p className="text-[10px] text-slate-500 mt-1">Enter any phone number with country code (e.g. +91 86240 86811)</p>
+                <p className="text-[10px] text-slate-500 mt-1">Enter any phone number with country code (e.g. +91 98200 12345)</p>
               </div>
 
               <div>
