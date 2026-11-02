@@ -4,7 +4,7 @@ const { getQueueJobs } = require('@/lib/store');
 const { USE_MOCKS } = require('@/mocks');
 
 export async function GET() {
-  const jobs = getQueueJobs();
+  const jobs = await getQueueJobs();
   return NextResponse.json({
     queue: 'seo-audit-jobs',
     redisProvider: 'Upstash Redis',

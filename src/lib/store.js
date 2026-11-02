@@ -327,8 +327,7 @@ async function createAudit(auditData) {
   };
   store.audits.unshift(newAudit);
 
-  // Also add queue job record
-  store.queueJobs.unshift({
+  const newJob = {
     id: 'job-' + Date.now(),
     name: `seo-audit-${auditData.clientId}`,
     queueName: 'seo-audit-jobs',
@@ -338,7 +337,27 @@ async function createAudit(auditData) {
     progress: 0,
     createdAt: new Date().toISOString(),
     completedAt: null
-  });
+  };
+  store.queueJobs.unshift(newJob);
+
+  if (prisma && process.env.DATABASE_URL) {
+    try {
+      await prisma.queueJob.create({
+        data: {
+          id: newJob.id,
+          jobId: newJob.id,
+          queueName: 'seo-audit-jobs',
+          clientId: auditData.clientId,
+          auditId: newAudit.id,
+          status: 'QUEUED',
+          progress: 0,
+          createdAt: new Date()
+        }
+      });
+    } catch (e) {
+      console.warn('[Prisma] Could not create queue_job record:', e.message);
+    }
+  }
 
   return newAudit;
 }
@@ -413,6 +432,20 @@ async function updateAudit(id, updates) {
         }
       });
 
+      // Also update QueueJob in Prisma
+      try {
+        await prisma.queueJob.updateMany({
+          where: { auditId: id },
+          data: {
+            status: 'COMPLETED',
+            progress: 100,
+            completedAt: new Date()
+          }
+        });
+      } catch (qErr) {
+        console.warn('[Prisma] QueueJob update notice:', qErr.message);
+      }
+
       // Also persist recommendations to Prisma if provided
       if (Array.isArray(updates.recommendations) && updates.recommendations.length > 0) {
         try {
@@ -441,7 +474,24 @@ async function updateAudit(id, updates) {
   return audit;
 }
 
-function getQueueJobs() {
+async function getQueueJobs() {
+  if (prisma && process.env.DATABASE_URL) {
+    try {
+      const dbJobs = await prisma.queueJob.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 50
+      });
+      if (dbJobs && dbJobs.length > 0) {
+        return dbJobs.map(j => ({
+          ...j,
+          createdAt: j.createdAt ? j.createdAt.toISOString() : null,
+          completedAt: j.completedAt ? j.completedAt.toISOString() : null
+        }));
+      }
+    } catch (e) {
+      console.warn('[Prisma] Could not fetch queue_jobs from DB, falling back to memory:', e.message);
+    }
+  }
   return store.queueJobs;
 }
 
