@@ -26,7 +26,9 @@ const IORedis = require('ioredis');
 const { runAuditPipeline } = require('../services/audit-runner');
 
 const QUEUE_NAME = 'seo-audit-jobs';
-const redisUrl = process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
+const redisUrl = (process.env.UPSTASH_REDIS_URL && !process.env.UPSTASH_REDIS_URL.includes('YOUR_UPSTASH'))
+  ? process.env.UPSTASH_REDIS_URL
+  : (process.env.REDIS_URL && !process.env.REDIS_URL.includes('YOUR_') ? process.env.REDIS_URL : null);
 
 console.log('====================================================');
 console.log('🚀 SEO Automation Engine — BullMQ Background Worker');

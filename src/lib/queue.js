@@ -8,7 +8,9 @@ let auditQueue = null;
 let auditWorker = null;
 let redisConnection = null;
 
-const redisUrl = process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
+const redisUrl = (process.env.UPSTASH_REDIS_URL && !process.env.UPSTASH_REDIS_URL.includes('YOUR_UPSTASH'))
+  ? process.env.UPSTASH_REDIS_URL
+  : (process.env.REDIS_URL && !process.env.REDIS_URL.includes('YOUR_') ? process.env.REDIS_URL : null);
 
 if (redisUrl) {
   try {
