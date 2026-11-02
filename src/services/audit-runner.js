@@ -138,10 +138,11 @@ async function runAuditPipeline(auditId) {
     const pdfUrl = `/api/reports/${auditId}/pdf`;
     
     // Send WhatsApp notification
-    const targetPhone = client.phone || "+91 86240 86811";
-    const notif = await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overallScore ?? claudeResult.overall_score, targetPhone);
+    const targetPhone = audit.recipientPhone || client.phone || "+91 86240 86811";
+    const targetEmail = audit.recipientEmail || client.email || "rahul@example-dental-clinic.com";
+    const notif = await notifyAuditCompletion(audit.clientId, pdfPath, claudeResult.overallScore ?? claudeResult.overall_score, targetPhone, targetEmail);
     addLog(`[WHATSAPP DISPATCH] → PDF audit report sent to ${notif.recipientPhone || targetPhone}`);
-    addLog(`[EMAIL DISPATCH]    → Executive PDF audit report sent to ${notif.recipientEmail || 'rahul@example-dental-clinic.com'}`);
+    addLog(`[EMAIL DISPATCH]    → Executive PDF audit report sent to ${notif.recipientEmail || targetEmail}`);
 
     // Mark completed
     updateAudit(auditId, {
@@ -161,6 +162,9 @@ async function runAuditPipeline(auditId) {
       rankingsData,
       pdfPath,
       pdfUrl,
+      recipientPhone: notif.recipientPhone || targetPhone,
+      recipientEmail: notif.recipientEmail || targetEmail,
+      whatsappShareUrl: notif.whatsappShareUrl,
       whatsappNotificationStatus: 'SENT'
     });
 

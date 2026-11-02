@@ -18,12 +18,26 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { clientId, url, businessType, city, state } = body;
+    const { 
+      clientId, 
+      url, 
+      businessType, 
+      city, 
+      state,
+      phone,
+      whatsappNumber,
+      recipientPhone,
+      email,
+      emailRecipient,
+      recipientEmail 
+    } = body;
 
     let targetUrl = url;
     let bType = businessType;
     let cCity = city;
     let sState = state;
+    let targetPhone = recipientPhone || whatsappNumber || phone;
+    let targetEmail = recipientEmail || emailRecipient || email;
 
     if (clientId) {
       const client = await getClientById(clientId);
@@ -32,6 +46,8 @@ export async function POST(request) {
         bType = bType || client.businessType;
         cCity = cCity || client.city;
         sState = sState || client.state;
+        targetPhone = targetPhone || client.phone;
+        targetEmail = targetEmail || client.email;
       }
     }
 
@@ -46,7 +62,9 @@ export async function POST(request) {
       url: targetUrl,
       businessType: bType || 'Local Business',
       city: cCity || 'Pune',
-      state: sState || 'Maharashtra'
+      state: sState || 'Maharashtra',
+      recipientPhone: targetPhone || '+91 86240 86811',
+      recipientEmail: targetEmail || 'rahul@example-dental-clinic.com'
     });
 
     // Queue job through BullMQ

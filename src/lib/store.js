@@ -239,6 +239,9 @@ async function getAudits(clientId) {
             quickWins: dbA.quickWins ?? matchMem?.quickWins ?? [],
             executiveSummary: dbA.executiveSummary ?? matchMem?.executiveSummary ?? '',
             whatsappNotificationStatus: matchMem?.whatsappNotificationStatus || dbA.whatsappStatus || 'SENT',
+            recipientPhone: matchMem?.recipientPhone || '+91 86240 86811',
+            recipientEmail: matchMem?.recipientEmail || 'rahul@example-dental-clinic.com',
+            whatsappShareUrl: matchMem?.whatsappShareUrl || null,
             recommendations: rawRecs.map(normalizeRec)
           };
         });
@@ -275,6 +278,9 @@ async function getAuditById(id) {
           quickWins: dbAudit.quickWins ?? memAudit?.quickWins ?? [],
           executiveSummary: dbAudit.executiveSummary ?? memAudit?.executiveSummary ?? '',
           whatsappNotificationStatus: memAudit?.whatsappNotificationStatus || dbAudit.whatsappStatus || 'SENT',
+          recipientPhone: memAudit?.recipientPhone || '+91 86240 86811',
+          recipientEmail: memAudit?.recipientEmail || 'rahul@example-dental-clinic.com',
+          whatsappShareUrl: memAudit?.whatsappShareUrl || null,
           recommendations: rawRecs.map(normalizeRec)
         };
       }
@@ -311,6 +317,9 @@ async function createAudit(auditData) {
     rankingsData: null,
     pdfPath: null,
     pdfUrl: null,
+    recipientPhone: auditData.recipientPhone || auditData.whatsappNumber || auditData.phone || '+91 86240 86811',
+    recipientEmail: auditData.recipientEmail || auditData.emailRecipient || auditData.email || 'rahul@example-dental-clinic.com',
+    whatsappShareUrl: null,
     whatsappNotificationStatus: 'PENDING',
     logs: [
       { time: new Date().toLocaleTimeString(), text: 'Audit job queued in BullMQ [seo-audit-jobs]' }
